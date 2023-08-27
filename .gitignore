@@ -1,0 +1,99 @@
+# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
+
+
+# Environments
+build/*
+build-Debug/*
+dist/*
+*.spec
+
+.idea/
+
+*~
+*.bak
+*.autosave
+*.a
+*.core
+*.o
+*.obj
+*.orig
+*.rej
+*.so
+*.so.*
+*_pch.h.cpp
+*_resource.rc
+.#*
+*.*#
+core
+!core/
+tags
+.DS_Store
+.directory
+*.debug
+Makefile*
+*.prl
+*.app
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+Thumbs.db
+*.res
+*.rc
+*.sh
+
+# xemacs temporary files
+*.flc
+
+# Vim temporary files
+.*.swp
+
+# Visual Studio generated files
+*.ib_pdb_index
+*.idb
+*.ilk
+*.pdb
+*.sln
+*.suo
+*.vcproj
+*vcproj.*.*.user
+*.ncb
+*.sdf
+*.opensdf
+*.vcxproj
+*vcxproj.*
+.vscode/*
+.vs/*
+*.user
+.devcontainer/*
+
+# MinGW generated files
+*.Debug
+*.Release
+
+# Binaries
+# --------
+*.dll
+*.exe
+
+CMakeLists.txt.*
+/.metadata
+*html/
+*latex/
+
+.cproject
+.project
+.settings/
+prep_debug.sh
+.vscode/launch.json
+
+*.ninja*
+*.cmake
+*.out
+*.log
+*.bin
+cmake.*
+CMakeC*
+TargetDirectories*
+compile_commands*
+feature_tests.cxx
