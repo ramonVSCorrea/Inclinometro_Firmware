@@ -4,10 +4,29 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <math.h>
+#include "Variaveis_Globais.h"
 #include "sdkconfig.h"
 
 static char tag[] = "MPU6050";
 i2c_cmd_handle_t cmd;
+
+// Ângulo lateral:
+float p1 = -4.44e-08;
+float p2 = 7.454e-06;
+float p3 = -0.0002898;
+float p4 = -0.01061;
+float p5 = 0.01591;
+float p1_2 = -1.014e-07;
+float p2_2 = 3.026e-05;
+float p3_2 = -0.003384;
+float p4_2 = 0.1549;
+float p5_2 = -2.207;
+
+// Ângulo frontal:
+float p6 = 2.313e-05;
+float p7 = -0.004459;
+float p8 = 0.2771;
+float p9 = -5.054;
 
 #define PIN_SDA 21
 #define PIN_CLK 22
@@ -82,6 +101,7 @@ void task_mpu6050() {
   short accel_x;
   short accel_y;
   short accel_z;
+  short t;
 
   while (1) {
     // Tell the MPU6050 to position the internal register pointer to register
@@ -106,7 +126,10 @@ void task_mpu6050() {
     ESP_ERROR_CHECK(i2c_master_read_byte(cmd, data + 2, 0));
     ESP_ERROR_CHECK(i2c_master_read_byte(cmd, data + 3, 0));
     ESP_ERROR_CHECK(i2c_master_read_byte(cmd, data + 4, 0));
-    ESP_ERROR_CHECK(i2c_master_read_byte(cmd, data + 5, 1));
+    // ESP_ERROR_CHECK(i2c_master_read_byte(cmd, data + 5, 1));
+    ESP_ERROR_CHECK(i2c_master_read_byte(cmd, data + 5, 0));
+    ESP_ERROR_CHECK(i2c_master_read_byte(cmd, data + 6, 0));
+    ESP_ERROR_CHECK(i2c_master_read_byte(cmd, data + 7, 1));
 
     // i2c_master_read(cmd, data, sizeof(data), 1);
     ESP_ERROR_CHECK(i2c_master_stop(cmd));
@@ -117,16 +140,36 @@ void task_mpu6050() {
     accel_x = (data[0] << 8) | data[1];
     accel_y = (data[2] << 8) | data[3];
     accel_z = (data[4] << 8) | data[5];
-    // ESP_LOGI(tag, "accel_x: %d, accel_y: %d, accel_z: %d", accel_x, accel_y,
+    t = (data[6] << 8) | data[7];
+    // ESP_LOGE(tag, "T: %d", t);
+
+    t = t / 340 + 36.53;
+
+    float offsetLat = p1 * (t ^ 4) + p2 * (t ^ 3) + p3 * (t ^ 2) + p4 * t +
+                      p5;  // offset lateral
+    float offsetFront =
+        p6 * (t ^ 3) + p7 * (t ^ 2) + p8 * t + p9;  // offset frontal
+
+    // ESP_LOGI(tag, "accel_x: %d, accel_y: %d, accel_z: %d", accel_x,
+    // accel_y,
     //          accel_z);
 
-    // Suponha que os valores brutos estejam em accel_x, accel_y e accel_z
-    float roll = atan2(accel_y, accel_z) * (180.0 / M_PI);
-    float pitch = atan2(-accel_x, sqrt(accel_y * accel_y + accel_z * accel_z)) *
-                  (180.0 / M_PI);
+    // Suponha que os valores brutos estejam em accel_x, accel_y e
+    // accel_z float roll = atan2(accel_y, accel_z) * (180.0 / M_PI);
+    // float pitch = atan2(-accel_x, sqrt(accel_y * accel_y + accel_z *
+    // accel_z)) *
+    //               (180.0 / M_PI);
 
-    ESP_LOGI(tag, "ROLL: %.2f, PITCH: %.2f", roll, pitch);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    // ESP_LOGI(tag, "ROLL: %.2f, PITCH: %.2f", roll, pitch);
+
+    AnguloLateral = (atan((float)accel_x / (float)accel_z)) * 180 / M_PI;
+    AnguloLateral -= offsetLat;
+    AnguloFrontal = (atan((float)accel_y / (float)accel_z)) * 180 / M_PI;
+    AnguloFrontal -= offsetFront;
+
+    ESP_LOGI(tag, "Lateral: %.2f, Frontal: %.2f", AnguloLateral, AnguloFrontal);
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 
   vTaskDelete(NULL);
