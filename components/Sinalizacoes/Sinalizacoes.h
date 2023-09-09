@@ -1,7 +1,7 @@
 #include <driver/gpio.h>
 
 #define LED_VERDE GPIO_NUM_25
-#define LED_AMARELO GPIO_NUM_16
+#define LED_AMARELO GPIO_NUM_26
 #define LED_VERMELHO GPIO_NUM_27
 #define BUZZER GPIO_NUM_19
 

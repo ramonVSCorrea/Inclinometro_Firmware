@@ -46,22 +46,17 @@ void Task_Sinalizacoes() {
 
 void verificaCondicaoAtual() {
   // Verifica se está em condição de bloqueio
-  //   if (((AnguloLateral >= Angulo_BLQ_Lat) ||
-  //        (AnguloFrontal >= Angulo_BLQ_Front)) ||
-  //       ((AnguloLateral * (-1) >= Angulo_BLQ_Lat) ||
-  //        (AnguloFrontal * (-1) >= Angulo_BLQ_Front))) {
-  //     Flag_BLQ = 1;
-  //   } else {
-  //     Flag_BLQ = 0;
-  //   }
-
-  //   ESP_LOGE(tag, "Lateral: %.2f, Frontal: %.2f", Angulo_BLQ_Lat,
-  //            Angulo_BLQ_Front);
-  if (AnguloLateral >= Angulo_BLQ_Lat) {
+  if (((AnguloLateral >= Angulo_BLQ_Lat) ||
+       (AnguloFrontal >= Angulo_BLQ_Front)) ||
+      ((AnguloLateral * (-1) >= Angulo_BLQ_Lat) ||
+       (AnguloFrontal * (-1) >= Angulo_BLQ_Front))) {
     Flag_BLQ = 1;
   } else {
     Flag_BLQ = 0;
   }
+
+  // ESP_LOGE(tag, "Lateral: %.2f, Frontal: %.2f", Angulo_BLQ_Lat,
+  //          Angulo_BLQ_Front);
 
   // Verifica se está em condição de Alerta
   if (!Flag_BLQ && (((AnguloLateral >= Angulo_BLQ_Lat * 0.7) ||
@@ -70,22 +65,26 @@ void verificaCondicaoAtual() {
                      (AnguloFrontal * (-1) >= Angulo_BLQ_Front * 0.7)))) {
     Flag_ALT = 1;
   } else {
-    Flag_BLQ = 0;
+    Flag_ALT = 0;
   }
 }
 
 void sinalizaBloqueio() {
+  // ESP_LOGE(tag, "BLOQUEIO");
+  gpio_set_level(LED_VERDE, 0);
   gpio_set_level(LED_VERMELHO, 1);
   gpio_set_level(BUZZER, 1);
-  vTaskDelay(100 / portTICK_PERIOD_MS);
+  vTaskDelay(50 / portTICK_PERIOD_MS);
   gpio_set_level(LED_VERMELHO, 0);
   gpio_set_level(BUZZER, 0);
+  vTaskDelay(50 / portTICK_PERIOD_MS);
 }
 
 void sinalizaAlerta() {
-  gpio_set_level(LED_VERDE, 1);
+  // ESP_LOGW(tag, "ALERTA");
+  gpio_set_level(LED_VERMELHO, 1);
   gpio_set_level(BUZZER, 1);
   vTaskDelay(500 / portTICK_PERIOD_MS);
-  gpio_set_level(LED_VERDE, 0);
+  gpio_set_level(LED_VERMELHO, 0);
   gpio_set_level(BUZZER, 0);
 }
