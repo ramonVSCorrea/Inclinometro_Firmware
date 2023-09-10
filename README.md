@@ -25,3 +25,9 @@ Abrindo uma janela do gerenciador de bibliotecas, instale as seguintes bibliotec
 
 - ESP32Servo by Kevin Harrington;
 - MPU6050_light by rfetick;
+
+## Circuito
+
+A imagem a seguir mostra o esquema de ligação dos componentes.
+
+<img src="/assets/Circuito_inclinometro.png">
