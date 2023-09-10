@@ -1,35 +1,27 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- |
+#include <I2S.h>
 
-# _Sample project_
+# Firmware Inclinômetro
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+Projeto que monitora inclinação de um caminhão basculante realizado no ESP32.
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+## Como configurar o Arduino IDE para compilar o programa:
 
+### Instalação do ESP32 na IDE:
 
+Abra o Arduino IDE, clique em "Arquivo" e depois em "Preferências".
 
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
+Na opção "URLs adicionais para gerenciadores de Placas" entre com o seguinte link e clique em "OK": 
+https://dl.espressif.com/dl/package_esp32_index.json
 
-## Example folder contents
+Clique em "Ferramentas / Placas / Gerenciador de Placas". Na janela do gerenciador de placas busque por "esp32".
+Irá aparecer a opção "esp32 by Espressif Systems", instale ela.
 
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
+Após instalado selecione a placa que você irá trabalhar clicando em "Ferramentas / Placa" e selecionando o modelo "DOIT ESP32 DEVKIT V1"
 
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
+### Inclusão de Bibliotecas:
 
-Below is short explanation of remaining files in the project folder.
+Algumas bibliotecas tiveram que ser instaladas para utilizar os componentes necessários. Para instalar, clique em "Rascunho / Incluir Biblioteca / Gerenciar bibliotecas".
+Abrindo uma janela do gerenciador de bibliotecas, instale as seguintes bibliotecas:
 
-```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
-```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
+- ESP32Servo by Kevin Harrington;
+- MPU6050_light by rfetick;
