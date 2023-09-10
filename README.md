@@ -1,5 +1,3 @@
-#include <I2S.h>
-
 # Firmware Inclinômetro
 
 Projeto que monitora inclinação de um caminhão basculante realizado no ESP32.
@@ -30,4 +28,4 @@ Abrindo uma janela do gerenciador de bibliotecas, instale as seguintes bibliotec
 
 A imagem a seguir mostra o esquema de ligação dos componentes.
 
-<img src="/assets/Circuito_inclinometro.png">
+<img src="/assets/Cicuito_inclinometro.png">
