@@ -1,10 +1,12 @@
 #include <MPU6050_light.h>
 #include <Wire.h>
 
+//#define DBG_MSG_MPU6050
+
 MPU6050 mpu(Wire);
 
 /**
-* @brief Função que inica o acelerômetro MPU6050
+* @brief Função que inicia o acelerômetro MPU6050
 */
 void Init_MPU6050() {
   Wire.begin();
@@ -35,10 +37,12 @@ void Task_MPU6050(void* pvParameters) {
       AnguloLateral = mpu.getAngleY();
       AnguloFrontal = mpu.getAngleX();
 
+#ifdef DBG_MSG_MPU6050
       Serial.print("Lateral : ");
       Serial.print(AnguloLateral);
       Serial.print("\tFrontal : ");
       Serial.println(AnguloFrontal);
+#endif
 
       timer = millis();
     }

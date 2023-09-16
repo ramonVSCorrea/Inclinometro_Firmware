@@ -1,12 +1,12 @@
 #include <ESP32Servo.h>
 
-#define BUTTON_UP 5 //Botão para realizar subida de bascula
-#define BUTTON_DOWN 4 //Botão para realizar descida de Bascula
+#define BUTTON_UP 5    //Botão para realizar subida de bascula
+#define BUTTON_DOWN 4  //Botão para realizar descida de Bascula
 #define SERVO_PIN 13
 
 Servo servo;
 
-int posServo = 0; //Variável que indica ângulo de inclinação do motor 
+int posServo = 0;  //Variável que indica ângulo de inclinação do motor
 
 /**
 * @brief Tarefa que comanda o servo motor
