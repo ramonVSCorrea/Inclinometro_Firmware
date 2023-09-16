@@ -14,6 +14,9 @@ void setup() {
 
   // Tarefa que controla servo motor
   xTaskCreate(Task_Servo, "Tarefa_Servo", 2048, NULL, 1, NULL);
+
+  // Tarefa que verifica mensagens bluetooth
+  xTaskCreate(Task_Bluetooth, "Tarefa_Bluetooth", 2048, NULL, 1, NULL);
 }
 
 void loop() {

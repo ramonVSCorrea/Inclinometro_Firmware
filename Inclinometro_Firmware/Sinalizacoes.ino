@@ -1,5 +1,4 @@
 #define LED_VERDE 25     //LED que indica condição segura de operação
-#define LED_AMARELO 26   //LED que irá indicar conexão com celular
 #define LED_VERMELHO 27  //LED para indicar condição insegura (ALERTA e BLOQUEIO)
 #define BUZZER 19
 
@@ -57,7 +56,6 @@ void sinalizaAlerta() {
 */
 void Task_Sinalizacoes(void* pvParameters) {
   pinMode(LED_VERDE, OUTPUT);
-  pinMode(LED_AMARELO, OUTPUT);
   pinMode(LED_VERMELHO, OUTPUT);
   pinMode(BUZZER, OUTPUT);
 
