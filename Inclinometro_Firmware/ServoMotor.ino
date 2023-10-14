@@ -25,6 +25,7 @@ void Task_Servo(void* pvParameters) {
     * o usuário pressionar BUTTON_DOWN, ele para de elevar a bascula.
     */
     if (digitalRead(BUTTON_UP) == LOW) {
+      Serial.println("SUBINDO");
       if (posServo < 180) {
         while (posServo < 180) {
           if (Flag_BLQ || digitalRead(BUTTON_DOWN) == LOW) break;
@@ -43,6 +44,7 @@ void Task_Servo(void* pvParameters) {
     * da bascula irá parar.
     */
     else if (digitalRead(BUTTON_DOWN) == LOW) {
+      Serial.println("DESCENDO");
       if (posServo > 0) {
         while (posServo > 0) {
           if (digitalRead(BUTTON_UP) == LOW) break;

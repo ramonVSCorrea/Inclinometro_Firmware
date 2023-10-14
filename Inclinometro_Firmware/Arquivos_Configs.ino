@@ -1,8 +1,9 @@
 #include <SPIFFS.h>
 #include <FS.h>
 #include <cJSON.h>
+#include <ArduinoJson.h>
 
-//#define DBG_MSG_FILES
+#define DBG_MSG_FILE
 
 #define FILE_CFG "/configs.json"
 
@@ -54,41 +55,41 @@ void Init_FILES() {
 *
 * @return Retorna true ou false
 */
+
 bool createFileConfig() {
-  File fp = SPIFFS.open(FILE_CFG, FILE_WRITE);  //Abre o arquivo para escrita
+  // Abre o arquivo para escrita
+  File fp = SPIFFS.open(FILE_CFG, FILE_WRITE);
 
   if (!fp) {
     Serial.println("Falha ao abrir arquivo");
     return false;
   }
 
-  //Escreve o texto no arquivo utilizando a biblioteca cJSON.h
-  cJSON* root = cJSON_CreateObject();
+  // Crie um objeto JSON para armazenar as configurações
+  DynamicJsonDocument doc(256);  // Tamanho do buffer JSON
 
-  cJSON* configs = cJSON_CreateObject();
+  // Crie um objeto JSON para as configurações
+  JsonObject configs = doc.createNestedObject("configuracoes");
+  configs["bloqueioLateral"] = 3.5;
+  configs["bloqueioFrontal"] = 5;
+  configs["calibracaoLateral"] = 0;
+  configs["calibracaoFrontal"] = 0;
 
-  cJSON_AddNumberToObject(configs, "bloqueioLateral", 3.5);
-  cJSON_AddNumberToObject(configs, "bloqueioFrontal", 5);
-  cJSON_AddNumberToObject(configs, "calibracaoLateral", 0);
-  cJSON_AddNumberToObject(configs, "calibracaoFrontal", 0);
-
-  cJSON_AddItemToObject(root, "configuracoes", configs);
-
-  if (fp.print(cJSON_Print(root))) {
-    Serial.println("Arquivo Criado!");
-  } else {
-    Serial.println("Erro ao gravar arquivo");
-    cJSON_Delete(root);
+  // Serialize o JSON no arquivo
+  if (serializeJson(doc, fp) == 0) {
+    Serial.println("Falha ao serializar o JSON no arquivo");
     fp.close();
     return false;
   }
 
-  cJSON_Delete(root);
+  Serial.println("Arquivo Criado!");
 
+  // Feche o arquivo
   fp.close();
 
 #ifdef DBG_MSG_FILE
-  fp = SPIFFS.open(FILE_CFG);
+  // Se você quiser exibir o conteúdo do arquivo no monitor serial
+  fp = SPIFFS.open(FILE_CFG, FILE_READ);
 
   while (fp.available()) {
     Serial.write(fp.read());
@@ -105,25 +106,98 @@ bool createFileConfig() {
 * Função que inicia os valores de configurações
 * do inclinômetro.
 */
+
 void Init_Configs() {
-  File fp = SPIFFS.open(FILE_CFG);
+  // Abra o arquivo para leitura
+  File fp = SPIFFS.open(FILE_CFG, "r");
 
-  String conteudo = fp.readString();
-  const char* fileContent = conteudo.c_str();
-
-  fp.close();
-
-  cJSON* root = cJSON_Parse(fileContent);
-
-  if (cJSON_IsObject(root)) {
-    cJSON* configs = cJSON_GetObjectItem(root, "configuracoes");
-
-    cJSON* node = cJSON_GetObjectItem(configs, "bloqueioLateral");
-    Angulo_BLQ_Lat = cJSON_GetNumberValue(node);
-
-    node = cJSON_GetObjectItem(configs, "bloqueioFrontal");
-    Angulo_BLQ_Lat = cJSON_GetNumberValue(node);
+  if (!fp) {
+    Serial.println("Falha ao abrir o arquivo");
+    return;
   }
 
-  cJSON_Delete(root);
+  // Obtenha o tamanho do arquivo
+  size_t fileSize = fp.size();
+
+  // Leia o conteúdo do arquivo em uma String
+  String fileContent;
+  fileContent.reserve(fileSize);
+  while (fp.available()) {
+    char c = fp.read();
+    fileContent += c;
+  }
+
+  // Feche o arquivo
+  fp.close();
+
+  // Crie um objeto JSON para analisar o conteúdo
+  DynamicJsonDocument doc(256);  // Tamanho do buffer JSON
+
+  DeserializationError error = deserializeJson(doc, fileContent);
+
+  if (error) {
+    Serial.println("Falha ao analisar o JSON");
+    return;
+  }
+
+  JsonObject configs = doc["configuracoes"];
+
+  Angulo_BLQ_Lat = configs["bloqueioLateral"];
+  Angulo_BLQ_Front = configs["bloqueioFrontal"];
+}
+
+
+
+/**
+* Função que altera os valores de bloqueio do arquivo de configurações
+*/
+void Set_BLQ_Configs() {
+  // Abra o arquivo para leitura e escrita
+  File fp = SPIFFS.open(FILE_CFG, "r+");
+
+  if (!fp) {
+    Serial.println("Falha ao abrir o arquivo");
+    return;
+  }
+
+  // Obtenha o tamanho do arquivo
+  size_t fileSize = fp.size();
+
+  // Leia o conteúdo do arquivo em uma String
+  String fileContent;
+  fileContent.reserve(fileSize);
+  while (fp.available()) {
+    char c = fp.read();
+    fileContent += c;
+  }
+
+  // Crie um objeto JSON para analisar o conteúdo
+  DynamicJsonDocument doc(256);  // Tamanho do buffer JSON
+
+  DeserializationError error = deserializeJson(doc, fileContent);
+
+  if (error) {
+    Serial.println("Falha ao analisar o JSON");
+    fp.close();
+    return;
+  }
+
+  JsonObject configs = doc["configuracoes"];
+
+  // Modifique os valores no JSON
+  configs["bloqueioLateral"] = Angulo_BLQ_Lat;
+  configs["bloqueioFrontal"] = Angulo_BLQ_Front;
+
+  // Volte ao início do arquivo para escrita
+  fp.seek(0);
+
+  // Serialize o JSON no arquivo
+  if (serializeJson(doc, fp) == 0) {
+    Serial.println("Falha ao serializar o JSON no arquivo");
+  } else {
+    Serial.println("JSON modificado e salvo no arquivo.");
+  }
+
+  // Feche o arquivo
+  fp.close();
 }
