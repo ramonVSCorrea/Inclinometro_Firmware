@@ -6,3 +6,6 @@ float Angulo_BLQ_Lat = 3.5;  // Variável que guarda o valor de ângulo de bloqu
 
 bool Flag_BLQ = false;  // Flag para situação de bloqueio
 bool Flag_ALT = false;  // Flag para situação de alerta
+
+bool cmdSubir = false;   // Comando de subida da bascula
+bool cmdDescer = false;  // Comando de descida da bascula

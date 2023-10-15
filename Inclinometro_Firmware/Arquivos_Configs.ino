@@ -3,7 +3,7 @@
 #include <cJSON.h>
 #include <ArduinoJson.h>
 
-#define DBG_MSG_FILE
+//#define DBG_MSG_FILE
 
 #define FILE_CFG "/configs.json"
 

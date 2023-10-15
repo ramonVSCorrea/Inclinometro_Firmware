@@ -24,11 +24,11 @@ void Task_Servo(void* pvParameters) {
     * Durante o processo se entrar em condição de bloqueio ou
     * o usuário pressionar BUTTON_DOWN, ele para de elevar a bascula.
     */
-    if (digitalRead(BUTTON_UP) == LOW) {
+    if (digitalRead(BUTTON_UP) == LOW || cmdSubir) {
       Serial.println("SUBINDO");
       if (posServo < 180) {
         while (posServo < 180) {
-          if (Flag_BLQ || digitalRead(BUTTON_DOWN) == LOW) break;
+          if (Flag_BLQ || digitalRead(BUTTON_DOWN) == LOW || cmdDescer) break;
 
           servo.write(posServo);
           posServo++;
@@ -36,6 +36,8 @@ void Task_Servo(void* pvParameters) {
           vTaskDelay(20 / portTICK_PERIOD_MS);
         }
       }
+      cmdSubir = false;
+      cmdDescer = false;
     }
 
     /**
@@ -43,11 +45,11 @@ void Task_Servo(void* pvParameters) {
     * Durante o processeo, se o usuário pressionar BUTTON_UP, a descida
     * da bascula irá parar.
     */
-    else if (digitalRead(BUTTON_DOWN) == LOW) {
+    else if (digitalRead(BUTTON_DOWN) == LOW || cmdDescer) {
       Serial.println("DESCENDO");
       if (posServo > 0) {
         while (posServo > 0) {
-          if (digitalRead(BUTTON_UP) == LOW) break;
+          if (digitalRead(BUTTON_UP) == LOW || cmdSubir) break;
 
           servo.write(posServo);
           posServo--;
@@ -55,8 +57,10 @@ void Task_Servo(void* pvParameters) {
           vTaskDelay(20 / portTICK_PERIOD_MS);
         }
       }
+      cmdSubir = false;
+      cmdDescer = false;
     }
 
-    vTaskDelay(1 / portTICK_PERIOD_MS);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }

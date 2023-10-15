@@ -30,6 +30,7 @@
 
 #include "BluetoothSerial.h"
 #include <stdlib.h>
+#include <ArduinoJson.h>
 #include "cJSON.h"
 
 #define LED_AMARELO 26  //LED que irá indicar conexão com celular
@@ -37,6 +38,10 @@
 #define CONFIG_BLQ "configuracoesBLQ"
 #define JSON_BLQ_LAT "bloqueioLateral"
 #define JSON_BLQ_FRT "bloqueioFrontal"
+
+#define CMD_BASC "comandoBascula"
+#define JSON_SUBIR "subir"
+#define JSON_DESCER "descer"
 
 BluetoothSerial SerialBT;
 
@@ -61,7 +66,7 @@ void Task_Bluetooth(void* pvParameters) {
       digitalWrite(LED_AMARELO, LOW);
     }
 
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }
 
@@ -76,30 +81,57 @@ void BT_Write_Leituras() {
 /**
 * @brief Função que lê informações recebidas via bluetooth
 */
+
 void BT_Read_Info(){
   if(SerialBT.available()){
-
     String msgBT = SerialBT.readString();
-    Serial.println("Mensagem recebida: " + msgBT);
-    
-    cJSON* root = cJSON_Parse(msgBT.c_str());
+    DynamicJsonDocument doc(256);
+    DeserializationError err = deserializeJson(doc, msgBT);
 
-    if(cJSON_IsObject(root)){
-      cJSON* configuracoesBLQ = cJSON_GetObjectItem(root, CONFIG_BLQ);
-
-      if(configuracoesBLQ){
-        //Serial.println("Configurações de bloqueio");
-        cJSON* node = cJSON_GetObjectItem(configuracoesBLQ, JSON_BLQ_LAT);
-        Angulo_BLQ_Lat = cJSON_GetNumberValue(node);
-
-        node = cJSON_GetObjectItem(configuracoesBLQ, JSON_BLQ_FRT);
-        Angulo_BLQ_Front = cJSON_GetNumberValue(node);
-      }
+    if(err){
+      Serial.println("Falha ao analisar JSON");
+      return;
     }
-    Set_BLQ_Configs();
-    cJSON_Delete(root);
+
+    JsonObject configuracoesBLQ = doc[CONFIG_BLQ];
+    JsonObject comandoBascula = doc[CMD_BASC];
+    
+    if(!configuracoesBLQ.isNull()){
+      Angulo_BLQ_Lat = configuracoesBLQ[JSON_BLQ_LAT];
+      Angulo_BLQ_Front = configuracoesBLQ[JSON_BLQ_FRT];
+      Set_BLQ_Configs();
+    }
+
+    else if(!comandoBascula.isNull()){
+      cmdSubir = comandoBascula[JSON_SUBIR];
+      cmdDescer = comandoBascula[JSON_DESCER];
+    } 
   }
 }
+// void BT_Read_Info(){
+//   if(SerialBT.available()){
+
+//     String msgBT = SerialBT.readString();
+//     Serial.println("Mensagem recebida: " + msgBT);
+    
+//     cJSON* root = cJSON_Parse(msgBT.c_str());
+
+//     if(cJSON_IsObject(root)){
+//       cJSON* configuracoesBLQ = cJSON_GetObjectItem(root, CONFIG_BLQ);
+
+//       if(configuracoesBLQ){
+//         //Serial.println("Configurações de bloqueio");
+//         cJSON* node = cJSON_GetObjectItem(configuracoesBLQ, JSON_BLQ_LAT);
+//         Angulo_BLQ_Lat = cJSON_GetNumberValue(node);
+
+//         node = cJSON_GetObjectItem(configuracoesBLQ, JSON_BLQ_FRT);
+//         Angulo_BLQ_Front = cJSON_GetNumberValue(node);
+//       }
+//     }
+//     Set_BLQ_Configs();
+//     cJSON_Delete(root);
+//   }
+// }
 
 
 
