@@ -57,39 +57,40 @@ void Init_FILES() {
 */
 
 bool createFileConfig() {
-  // Abre o arquivo para escrita
-  File fp = SPIFFS.open(FILE_CFG, FILE_WRITE);
+  File fp = SPIFFS.open(FILE_CFG, FILE_WRITE);  //Abre o arquivo para escrita
 
   if (!fp) {
     Serial.println("Falha ao abrir arquivo");
     return false;
   }
 
-  // Crie um objeto JSON para armazenar as configurações
-  DynamicJsonDocument doc(256);  // Tamanho do buffer JSON
+  //Escreve o texto no arquivo utilizando a biblioteca cJSON.h
+  cJSON* root = cJSON_CreateObject();
 
-  // Crie um objeto JSON para as configurações
-  JsonObject configs = doc.createNestedObject("configuracoes");
-  configs["bloqueioLateral"] = 3.5;
-  configs["bloqueioFrontal"] = 5;
-  configs["calibracaoLateral"] = 0;
-  configs["calibracaoFrontal"] = 0;
+  cJSON* configs = cJSON_CreateObject();
 
-  // Serialize o JSON no arquivo
-  if (serializeJson(doc, fp) == 0) {
-    Serial.println("Falha ao serializar o JSON no arquivo");
+  cJSON_AddNumberToObject(configs, "bloqueioLateral", 3.5);
+  cJSON_AddNumberToObject(configs, "bloqueioFrontal", 5);
+  cJSON_AddNumberToObject(configs, "calibracaoLateral", 0);
+  cJSON_AddNumberToObject(configs, "calibracaoFrontal", 0);
+
+  cJSON_AddItemToObject(root, "configuracoes", configs);
+
+  if (fp.print(cJSON_Print(root))) {
+    Serial.println("Arquivo Criado!");
+  } else {
+    Serial.println("Erro ao gravar arquivo");
+    cJSON_Delete(root);
     fp.close();
     return false;
   }
 
-  Serial.println("Arquivo Criado!");
+  cJSON_Delete(root);
 
-  // Feche o arquivo
   fp.close();
 
 #ifdef DBG_MSG_FILE
-  // Se você quiser exibir o conteúdo do arquivo no monitor serial
-  fp = SPIFFS.open(FILE_CFG, FILE_READ);
+  fp = SPIFFS.open(FILE_CFG);
 
   while (fp.available()) {
     Serial.write(fp.read());
@@ -108,42 +109,32 @@ bool createFileConfig() {
 */
 
 void Init_Configs() {
-  // Abra o arquivo para leitura
-  File fp = SPIFFS.open(FILE_CFG, "r");
+  File fp = SPIFFS.open(FILE_CFG);
 
-  if (!fp) {
-    Serial.println("Falha ao abrir o arquivo");
-    return;
-  }
+  String conteudo = fp.readString();
+  const char* fileContent = conteudo.c_str();
 
-  // Obtenha o tamanho do arquivo
-  size_t fileSize = fp.size();
-
-  // Leia o conteúdo do arquivo em uma String
-  String fileContent;
-  fileContent.reserve(fileSize);
-  while (fp.available()) {
-    char c = fp.read();
-    fileContent += c;
-  }
-
-  // Feche o arquivo
   fp.close();
 
-  // Crie um objeto JSON para analisar o conteúdo
-  DynamicJsonDocument doc(256);  // Tamanho do buffer JSON
+  cJSON* root = cJSON_Parse(fileContent);
 
-  DeserializationError error = deserializeJson(doc, fileContent);
+  if (cJSON_IsObject(root)) {
+    cJSON* configs = cJSON_GetObjectItem(root, "configuracoes");
 
-  if (error) {
-    Serial.println("Falha ao analisar o JSON");
-    return;
+    cJSON* node = cJSON_GetObjectItem(configs, "bloqueioLateral");
+    Angulo_BLQ_Lat = cJSON_GetNumberValue(node);
+
+    node = cJSON_GetObjectItem(configs, "bloqueioFrontal");
+    Angulo_BLQ_Front = cJSON_GetNumberValue(node);
+
+    node = cJSON_GetObjectItem(configs, "calibracaoLateral");
+    Angulo_Calib_Lat = cJSON_GetNumberValue(node);
+
+    node = cJSON_GetObjectItem(configs, "calibracaoFrontal");
+    Angulo_Calib_Front = cJSON_GetNumberValue(node);
   }
 
-  JsonObject configs = doc["configuracoes"];
-
-  Angulo_BLQ_Lat = configs["bloqueioLateral"];
-  Angulo_BLQ_Front = configs["bloqueioFrontal"];
+  cJSON_Delete(root);
 }
 
 
@@ -152,52 +143,75 @@ void Init_Configs() {
 * Função que altera os valores de bloqueio do arquivo de configurações
 */
 void Set_BLQ_Configs() {
-  // Abra o arquivo para leitura e escrita
-  File fp = SPIFFS.open(FILE_CFG, "r+");
+  File fp = SPIFFS.open(FILE_CFG, "r");
 
-  if (!fp) {
-    Serial.println("Falha ao abrir o arquivo");
-    return;
-  }
+  String conteudo = fp.readString();
+  const char* fileContent = conteudo.c_str();
 
-  // Obtenha o tamanho do arquivo
-  size_t fileSize = fp.size();
-
-  // Leia o conteúdo do arquivo em uma String
-  String fileContent;
-  fileContent.reserve(fileSize);
-  while (fp.available()) {
-    char c = fp.read();
-    fileContent += c;
-  }
-
-  // Crie um objeto JSON para analisar o conteúdo
-  DynamicJsonDocument doc(256);  // Tamanho do buffer JSON
-
-  DeserializationError error = deserializeJson(doc, fileContent);
-
-  if (error) {
-    Serial.println("Falha ao analisar o JSON");
-    fp.close();
-    return;
-  }
-
-  JsonObject configs = doc["configuracoes"];
-
-  // Modifique os valores no JSON
-  configs["bloqueioLateral"] = Angulo_BLQ_Lat;
-  configs["bloqueioFrontal"] = Angulo_BLQ_Front;
-
-  // Volte ao início do arquivo para escrita
-  fp.seek(0);
-
-  // Serialize o JSON no arquivo
-  if (serializeJson(doc, fp) == 0) {
-    Serial.println("Falha ao serializar o JSON no arquivo");
-  } else {
-    Serial.println("JSON modificado e salvo no arquivo.");
-  }
-
-  // Feche o arquivo
   fp.close();
+
+  fp = SPIFFS.open(FILE_CFG, "w");
+
+  cJSON* root = cJSON_Parse(fileContent);
+
+  if (cJSON_IsObject(root)) {
+    cJSON* configs = cJSON_GetObjectItem(root, "configuracoes");
+
+    if (cJSON_IsObject(configs)) {
+      cJSON* node = cJSON_GetObjectItem(configs, "bloqueioLateral");
+      cJSON_SetNumberValue(node, Angulo_BLQ_Lat);
+
+      node = cJSON_GetObjectItem(configs, "bloqueioFrontal");
+      cJSON_SetNumberValue(node, Angulo_BLQ_Front);
+    }
+  }
+
+  if (fp.print(cJSON_Print(root))) {
+    Serial.println("Arquivo Alterado!");
+  } else {
+    Serial.println("Erro ao alterar arquivo");
+  }
+
+  cJSON_Delete(root);
+  fp.close();
+  Init_Configs();
+}
+
+/**
+* Função que altera os valores de calibração do sensor no arquivo
+*/
+void Set_Calib_Configs() {
+  File fp = SPIFFS.open(FILE_CFG, "r");
+
+  String conteudo = fp.readString();
+  const char* fileContent = conteudo.c_str();
+
+  fp.close();
+
+  fp = SPIFFS.open(FILE_CFG, "w");
+
+  cJSON* root = cJSON_Parse(fileContent);
+
+  if (cJSON_IsObject(root)) {
+    cJSON* configs = cJSON_GetObjectItem(root, "configuracoes");
+
+    if (cJSON_IsObject(configs)) {
+      cJSON* node = cJSON_GetObjectItem(configs, "calibracaoLateral");
+      cJSON_SetNumberValue(node, Angulo_Calib_Lat);
+
+      node = cJSON_GetObjectItem(configs, "calibracaoFrontal");
+      cJSON_SetNumberValue(node, Angulo_Calib_Front);
+    }
+  }
+
+  if (fp.print(cJSON_Print(root))) {
+    Serial.println("Arquivo Alterado!");
+    Serial.println(fp.readString());
+  } else {
+    Serial.println("Erro ao alterar arquivo");
+  }
+
+  cJSON_Delete(root);
+  fp.close();
+  Init_Configs();
 }

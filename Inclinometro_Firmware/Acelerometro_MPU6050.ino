@@ -16,10 +16,10 @@ void Init_MPU6050() {
   Serial.println(status);
   while (status != 0) {}
 
-  Serial.println(F("Calculando Offsets, não movimento o sensor!"));
-  delay(1000);
-  mpu.upsideDownMounting = false;
-  mpu.calcOffsets();
+  // Serial.println(F("Calculando Offsets, não movimento o sensor!"));
+  // delay(1000);
+  // mpu.upsideDownMounting = false;
+  // mpu.calcOffsets();
   Serial.println("Offsets calculados!\n");
 }
 
@@ -32,20 +32,18 @@ void Task_MPU6050(void* pvParameters) {
 
   while (1) {
     mpu.update();
-
-    if ((millis() - timer) > 1000) {  // print data every 10ms
-      AnguloLateral = mpu.getAngleY();
-      AnguloFrontal = mpu.getAngleX();
+    AnguloLateral = mpu.getAngleY() + (Angulo_Calib_Lat*(-1));
+    AnguloFrontal = mpu.getAngleX() + (Angulo_Calib_Front*(-1));
 
 #ifdef DBG_MSG_MPU6050
+    if ((millis() - timer) > 1000) {  // print data every 10ms
       Serial.print("Lateral : ");
       Serial.print(AnguloLateral);
       Serial.print("\tFrontal : ");
       Serial.println(AnguloFrontal);
-#endif
-
       timer = millis();
     }
+#endif
 
     vTaskDelay(1 / portTICK_PERIOD_MS);
   }
