@@ -16,10 +16,6 @@ void Init_MPU6050() {
   Serial.println(status);
   while (status != 0) {}
 
-  // Serial.println(F("Calculando Offsets, não movimento o sensor!"));
-  // delay(1000);
-  // mpu.upsideDownMounting = false;
-  // mpu.calcOffsets();
   Serial.println("Offsets calculados!\n");
 }
 

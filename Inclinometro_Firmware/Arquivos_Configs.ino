@@ -6,6 +6,7 @@
 //#define DBG_MSG_FILE
 
 #define FILE_CFG "/configs.json"
+#define FORMAT_SPIFFS_IF_FAILED true
 
 
 /**
@@ -13,30 +14,23 @@
 */
 void Init_FILES() {
 
-  //Inicia a partição SPIFFS
-  if (SPIFFS.begin(false)) {
-    Serial.println("SPIFFS inicializado!");
-    //SPIFFS.remove(FILE_CFG);
 
-    /**
+  SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED);  //Inicia a partição SPIFFS e formata caso falhar
+  Serial.println("SPIFFS inicializado!");
+  //SPIFFS.remove(FILE_CFG);
+
+  /**
     * Se o arquivo de configurações NÃO existe na 
     * partição, ele é criado.
     */
-    if (!SPIFFS.exists(FILE_CFG)) {
-      if (createFileConfig())
-        Serial.println("Arquivo de configurações criado com sucesso!");
-      else
-        Serial.println("Erro ao criar arquivo de configurações!");
-    }
-
-    Init_Configs();  //Inicia as variáveis globais
+  if (!SPIFFS.exists(FILE_CFG)) {
+    if (createFileConfig())
+      Serial.println("Arquivo de configurações criado com sucesso!");
+    else
+      Serial.println("Erro ao criar arquivo de configurações!");
   }
 
-  else {
-    Serial.println("Falha na inicialização SPIFFS");
-    while (1)
-      ;
-  }
+  Init_Configs();  //Inicia as variáveis globais
 }
 
 

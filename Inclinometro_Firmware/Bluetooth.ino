@@ -1,33 +1,3 @@
-/*
-    A ideia é utilizar o bluetooth serial para o app se comunicar 
-    com o ESP32.
-    Quando o usuário se conectar no app, o ESP irá mandar informações via
-    bluetooth com a seguinte mensagem:
-
-      {
-        "leituras": 
-        {
-          "anguloLateral": x,
-          "AnguloFrontal": y
-        }
-      }
-
-    Com essa mensagem o app irá interpretá-la e mostrar na tela principal
-    os valores de inclinação atual. O app também mandará informações para o 
-    ESP como por exemplo quando ele for alterar as configurações do inclinômetro
-
-    {
-      "configuracoesBLQ":
-      {
-        "bloqueioLateral": x,
-        "bloqueioFrontal": y
-      }
-    }
-
-    O ESP irá interpretar a mensagem alterar os valores de bloqueio do inclinômetro
-
-*/
-
 #include "BluetoothSerial.h"
 #include <stdlib.h>
 #include <ArduinoJson.h>
@@ -220,8 +190,8 @@ void BT_Read_Info() {
       */
       else if(configCalib){
         if (cJSON_GetNumberValue(configCalib) == 1){
-          Angulo_Calib_Lat = AnguloLateral;
-          Angulo_Calib_Front = AnguloFrontal;
+          Angulo_Calib_Lat += AnguloLateral;
+          Angulo_Calib_Front += AnguloFrontal;
           Set_Calib_Configs();
         } else if(cJSON_GetNumberValue(configCalib) == 0){
           Angulo_Calib_Lat = 0;
