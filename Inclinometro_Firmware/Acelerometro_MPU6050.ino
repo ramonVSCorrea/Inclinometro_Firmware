@@ -40,7 +40,7 @@ void Task_MPU6050(void* pvParameters) {
       timer = millis();
     }
 #endif
-
+    //Add_Event();
     vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }

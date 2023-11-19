@@ -1,3 +1,14 @@
+//Tipos de eventos
+#define EVT_BLOQUEIO "BLOQUEIO"
+#define EVT_INICIO_BASCULAMENTO "INICIO BASCULAMENTO"
+#define EVT_FIM_BASCULAMENTO "FIM BASCULAMENTO"
+#define EVT_SENSOR_CONECTADO "SENSOR CONECTADO AO APP"
+#define EVT_SENSOR_DESCONECTADO "SENSOR DESCONECTADO DO APP"
+#define EVT_SENSOR_CALIBRADO "SENSOR CALIBRADO"
+#define EVT_SENSOR_LIMPO "SENSOR LIMPO"
+#define EVT_BLQ_ALTERADO "VALOR DE BLQ ALTERADO"
+
+
 float AnguloLateral = 0;  // Variável que guarda o valor de ângulo lateral atual
 float AnguloFrontal = 0;  // Variável que guarda o valor de ângulo frontal atual
 
