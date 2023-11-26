@@ -4,6 +4,7 @@
 #include <FS.h>
 #include <SPIFFS.h>
 
+//#define DBG_MSG_BLUE
 
 #define LED_AMARELO 26  //LED que irá indicar conexão com celular
 
@@ -67,17 +68,20 @@ void BT_Write_Leituras() {
 void BT_Read_Info() {
   if (SerialBT.available()) {
 
-    String msgBT = SerialBT.readStringUntil('\n');
-    Serial.println("Mensagem recebida: " + msgBT);
+    String msgBT = SerialBT.readStringUntil('\n');-*
 
-    if (msgBT == "{\"requisicaoLeitura\": 1}") {
+#ifdef DBG_MSG_BLUE
+    Serial.println("Mensagem recebida: " + msgBT);
+#endif
+
+    if (msgBT == "{\"requisicaoLeitura\": 1}\n") {
       BT_Write_Leituras();
     } else {
       cJSON* root = cJSON_Parse(msgBT.c_str());
 
       if (cJSON_IsObject(root)) {
         cJSON* configuracoesBLQ = cJSON_GetObjectItem(root, CONFIG_BLQ);
-        cJSON* comandoBascula = cJSON_GetObjectItem(root, CMD_BASC);
+        cJSON* comandoBascula = cJSON_GetObjectItem(root, CMD_+6BASC);
         cJSON* requisitaLeitura = cJSON_GetObjectItem(root, CMD_LEITURA);
         cJSON* requisitaConfig = cJSON_GetObjectItem(root, CMD_LER_CFG);
         cJSON* configCalib = cJSON_GetObjectItem(root, CONFIG_CALIB);
@@ -135,7 +139,11 @@ void BT_Read_Info() {
             File fp = SPIFFS.open(FILE_CFG);
             String conteudo = fp.readString();
             fp.close();
+
+#ifdef DBG_MSG_BLUE
             Serial.println(conteudo);
+#endif
+
             SerialBT.println(conteudo);
           }
         }
@@ -185,6 +193,8 @@ void BT_Read_Info() {
           cmdSubir = cJSON_GetNumberValue(node);
           node = cJSON_GetObjectItem(comandoBascula, JSON_DESCER);
           cmdDescer = cJSON_GetNumberValue(node);
+          String resposta = "{\"bascula\":1}";
+          SerialBT.println(resposta);
         }
 
         /*
@@ -237,7 +247,11 @@ void BT_Read_Info() {
         else if (totalEventos) {
           if (cJSON_GetNumberValue(totalEventos) == 1) {
             String resposta = "{\"totalEventos\": " + String(lerNumEventos()) + "}";
+
+#ifdef DBG_MSG_BLUE
             Serial.println("Mensagem recebida: " + msgBT);
+#endif
+
             SerialBT.println(resposta);
           }
         }
@@ -262,9 +276,8 @@ void BT_Read_Info() {
             }
         */
 
-        else if(lerEventoJSON) {
+        else if (lerEventoJSON) {
           int numEvento = cJSON_GetNumberValue(lerEventoJSON);
-          //String descEvento = lerEvento(numEvento);
           SerialBT.println(lerEvento(numEvento));
         }
 

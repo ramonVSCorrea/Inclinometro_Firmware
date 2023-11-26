@@ -11,7 +11,7 @@ void verificaCondicaoAtual() {
   // Verifica se está em condição de bloqueio
   if (((AnguloLateral >= Angulo_BLQ_Lat) || (AnguloFrontal >= Angulo_BLQ_Front)) || ((AnguloLateral * (-1) >= Angulo_BLQ_Lat) || (AnguloFrontal * (-1) >= Angulo_BLQ_Front))) {
     Flag_BLQ = true;
-    if(!evt_blq){
+    if (!evt_blq) {
       Add_Event(EVT_BLOQUEIO);
       evt_blq = true;
     }

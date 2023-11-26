@@ -8,7 +8,7 @@ void setup() {
   Init_RTC();            //Inicia o relógio RTC
 
   // Tarefa que verifica os valores de inclinação
-   xTaskCreate(Task_MPU6050, "Tarefa_MPU6050", 5120, NULL, configMAX_PRIORITIES - 2, NULL);
+  xTaskCreate(Task_MPU6050, "Tarefa_MPU6050", 5120, NULL, configMAX_PRIORITIES - 2, NULL);
 
   // Tarefa que verifica condições de sinalização do inclinômetro
   xTaskCreate(Task_Sinalizacoes, "Tarefa_Sinalizacoes", 5120, NULL, configMAX_PRIORITIES - 3, NULL);

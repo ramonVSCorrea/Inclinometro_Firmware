@@ -4,6 +4,8 @@
 #define BUTTON_DOWN 4  //Botão para realizar descida de Bascula
 #define SERVO_PIN 13
 
+//#define DBG_MSG_SERVO
+
 Servo servo;
 
 int posServo = 0;  //Variável que indica ângulo de inclinação do motor
@@ -25,8 +27,9 @@ void Task_Servo(void* pvParameters) {
     * o usuário pressionar BUTTON_DOWN, ele para de elevar a bascula.
     */
     if (digitalRead(BUTTON_UP) == LOW || cmdSubir) {
+#ifdef DBG_MSG_SERVO
       Serial.println("SUBINDO");
-      lerEvento(7);
+#endif
       if (posServo < 180) {
         while (posServo < 180) {
           if (Flag_BLQ || digitalRead(BUTTON_DOWN) == LOW || cmdDescer) break;
@@ -47,7 +50,9 @@ void Task_Servo(void* pvParameters) {
     * da bascula irá parar.
     */
     else if (digitalRead(BUTTON_DOWN) == LOW || cmdDescer) {
+#ifdef DBG_MSG_SERVO
       Serial.println("DESCENDO");
+#endif
       if (posServo > 0) {
         while (posServo > 0) {
           if (digitalRead(BUTTON_UP) == LOW || cmdSubir) break;

@@ -2,6 +2,8 @@
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 
+//#define DBG_MSG_EVENTS
+
 void Add_Event(int evt) {
   String evento = data + ";" + hora + ";";
 
@@ -54,9 +56,10 @@ void Add_Event(int evt) {
 
     fp.close();
   }
-
+#ifdef DBG_MSG_EVENTS
   Serial.print("Número de eventos: ");
   Serial.print(lerNumEventos());
+#endif
 }
 
 int lerNumEventos() {
@@ -67,7 +70,9 @@ int lerNumEventos() {
 
     while (fp.available()) {
       String linha = fp.readStringUntil('\n');
+#ifdef DBG_MSG_EVENTS
       Serial.println(linha);
+#endif
       numEventos++;
     }
     fp.close();
@@ -91,7 +96,6 @@ String lerEvento(int numEvento) {
     fp.close();
     // Parse da linha de dados
     String data, hora, tipoEvento, angLat, angFront;
-    //float angLat, angFront;
 
     int pos1 = linha.indexOf(';');
     data = linha.substring(0, pos1);
@@ -118,7 +122,11 @@ String lerEvento(int numEvento) {
     // Serializar o JSON para uma string
     String jsonString;
     serializeJson(doc, jsonString);
+
+#ifdef DBG_MSG_EVENTS
     Serial.println(jsonString);
+#endif
+
     return jsonString;
   } else {
     Serial.println("Erro ao abrir o arquivo");

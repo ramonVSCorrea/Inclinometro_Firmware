@@ -36,11 +36,11 @@ void Init_FILES() {
   *  Se o arquivo de eventos NÃO existe na 
   *  partição, ele é criado.
   */
-  if(!SPIFFS.exists(FILE_EVENTS)){
-    if(createFileEvents())
+  if (!SPIFFS.exists(FILE_EVENTS)) {
+    if (createFileEvents())
       Serial.println("Arquivo de Eventos criado com sucesso!");
     else
-     Serial.println("Erro ao criar aquivo de eventos!");
+      Serial.println("Erro ao criar aquivo de eventos!");
   }
 
   Init_Configs();  //Inicia as variáveis globais
@@ -223,13 +223,13 @@ void Set_Calib_Configs() {
   Init_Configs();
 }
 
-bool createFileEvents(){
-   File fp = SPIFFS.open(FILE_EVENTS, FILE_WRITE);  //Abre o arquivo para escrita
+bool createFileEvents() {
+  File fp = SPIFFS.open(FILE_EVENTS, FILE_WRITE);  //Abre o arquivo para escrita
 
   if (!fp) {
     Serial.println("Falha ao abrir arquivo");
     return false;
-  } 
+  }
 
   String titulosCsv = "Data;Hora;Evento;Lat;Front\n";
 

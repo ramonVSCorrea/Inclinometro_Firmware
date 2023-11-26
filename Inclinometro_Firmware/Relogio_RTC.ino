@@ -30,8 +30,6 @@ void Task_RTC(void* pvParameters) {
 
     data = zeroFill(String(now.day(), DEC)) + "/" + zeroFill(String(now.month(), DEC)) + "/" + zeroFill(String(now.year(), DEC));
     hora = zeroFill(String(now.hour(), DEC)) + ":" + zeroFill(String(now.minute(), DEC)) + ":" + zeroFill(String(now.second(), DEC));
-    // String data = zeroFill(now.day()) + "/" + zeroFill(now.month()) + "/" + String(now.year());
-    // String hora = zeroFill(now.hour()) + ":" + zeroFill(now.minute()) + ":" + zeroFill(now.second());
 
     xSemaphoreGive(i2cMutex);
     vTaskDelay(1000 / portTICK_PERIOD_MS);

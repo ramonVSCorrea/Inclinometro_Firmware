@@ -30,11 +30,11 @@ void Task_MPU6050(void* pvParameters) {
     xSemaphoreTake(i2cMutex, portMAX_DELAY);
 
     mpu.update();
-    AnguloLateral = mpu.getAngleY() + (Angulo_Calib_Lat*(-1));
-    AnguloFrontal = mpu.getAngleX() + (Angulo_Calib_Front*(-1));
+    AnguloLateral = mpu.getAngleY() + (Angulo_Calib_Lat * (-1));
+    AnguloFrontal = mpu.getAngleX() + (Angulo_Calib_Front * (-1));
 
 #ifdef DBG_MSG_MPU6050
-    if ((millis() - timer) > 1000) {  // print data every 10ms
+    if ((millis() - timer) > 1000) {
       Serial.print("Lateral : ");
       Serial.print(AnguloLateral);
       Serial.print("\tFrontal : ");
