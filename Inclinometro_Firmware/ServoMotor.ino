@@ -26,6 +26,7 @@ void Task_Servo(void* pvParameters) {
     */
     if (digitalRead(BUTTON_UP) == LOW || cmdSubir) {
       Serial.println("SUBINDO");
+      lerEvento(7);
       if (posServo < 180) {
         while (posServo < 180) {
           if (Flag_BLQ || digitalRead(BUTTON_DOWN) == LOW || cmdDescer) break;

@@ -6,6 +6,7 @@
 //#define DBG_MSG_FILE
 
 #define FILE_CFG "/configs.json"
+#define FILE_EVENTS "/events.csv"
 #define FORMAT_SPIFFS_IF_FAILED true
 
 
@@ -17,7 +18,8 @@ void Init_FILES() {
 
   SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED);  //Inicia a partição SPIFFS e formata caso falhar
   Serial.println("SPIFFS inicializado!");
-  //SPIFFS.remove(FILE_CFG);
+  // SPIFFS.remove(FILE_CFG);
+  // SPIFFS.remove(FILE_EVENTS);
 
   /**
     * Se o arquivo de configurações NÃO existe na 
@@ -28,6 +30,17 @@ void Init_FILES() {
       Serial.println("Arquivo de configurações criado com sucesso!");
     else
       Serial.println("Erro ao criar arquivo de configurações!");
+  }
+
+  /**
+  *  Se o arquivo de eventos NÃO existe na 
+  *  partição, ele é criado.
+  */
+  if(!SPIFFS.exists(FILE_EVENTS)){
+    if(createFileEvents())
+      Serial.println("Arquivo de Eventos criado com sucesso!");
+    else
+     Serial.println("Erro ao criar aquivo de eventos!");
   }
 
   Init_Configs();  //Inicia as variáveis globais
@@ -208,4 +221,26 @@ void Set_Calib_Configs() {
   cJSON_Delete(root);
   fp.close();
   Init_Configs();
+}
+
+bool createFileEvents(){
+   File fp = SPIFFS.open(FILE_EVENTS, FILE_WRITE);  //Abre o arquivo para escrita
+
+  if (!fp) {
+    Serial.println("Falha ao abrir arquivo");
+    return false;
+  } 
+
+  String titulosCsv = "Data;Hora;Evento;Lat;Front\n";
+
+  if (fp.print(titulosCsv)) {
+    Serial.println("Arquivo Criado!");
+  } else {
+    Serial.println("Erro ao gravar arquivo");
+    fp.close();
+    return false;
+  }
+
+  fp.close();
+  return true;
 }

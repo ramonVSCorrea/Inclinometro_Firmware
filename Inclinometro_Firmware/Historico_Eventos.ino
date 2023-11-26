@@ -1,66 +1,127 @@
-#include <InfluxDbClient.h>
-#include <InfluxDbCloud.h>
-#include <WiFi.h>
+#include <FS.h>
+#include <SPIFFS.h>
+#include <ArduinoJson.h>
 
-const char* ssid = "LIVE TIM_0820_2G";
-const char* pwd = "a3ehn6rep6";
+void Add_Event(int evt) {
+  String evento = data + ";" + hora + ";";
 
-#define INFLUXDB_URL "https://us-east-1-1.aws.cloud2.influxdata.com"
-#define INFLUXDB_TOKEN "X0zO3ujnfr20JXsm3HnCaatkWWW0xtf_VG9XRuj33as8Kb-zG1CGRPpfczL0xyNwmXZ2UaS2m65PITWf1ePskA=="
-#define INFLUXDB_ORG "9f389c7f82a02efa"
-#define INFLUXDB_BUCKET "IncliMax"
-#define TZ_INFO "BRST+3BRDT+2,M10.3.0,M2.3.0"
-//#define TZ_INFO "UTC-3"
-#define DEVICE "ESP32"
-Point angulos("Angulos");
+  switch (evt) {
+    case EVT_BLOQUEIO:
+      evento += "BLOQUEIO;";
+      break;
 
-InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
+    case EVT_INICIO_BASCULAMENTO:
+      evento += "INICIO BASCULAMENTO;";
+      break;
 
+    case EVT_FIM_BASCULAMENTO:
+      evento += "FIM BASCULAMENTO;";
+      break;
 
-void Init_Events() {
-  WiFi.begin(ssid, pwd);
+    case EVT_SENSOR_CONECTADO:
+      evento += "SENSOR CONECTADO AO APP;";
+      break;
 
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.println("Connecting to WiFi..");
+    case EVT_SENSOR_DESCONECTADO:
+      evento += "SENSOR DESCONECTADO DO APP;";
+      break;
+
+    case EVT_SENSOR_CALIBRADO:
+      evento += "SENSOR CALIBRADO;";
+      break;
+
+    case EVT_SENSOR_LIMPO:
+      evento += "SENSOR LIMPO;";
+      break;
+
+    case EVT_BLQ_ALTERADO:
+      evento += "VALOR DE BLQ ALTERADO;";
+      break;
   }
-  Serial.println("Connected to the WiFi network");
 
-  //timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
-  //timeSync(TZ_INFO, "ntp.cais.rnp.br", "pool.ntp.br");
-  timeSync(TZ_INFO, "a.st1.ntp.br", "time.nis.gov");
+  evento += String(fabs(AnguloLateral)) + ";" + String(fabs(AnguloFrontal)) + "\n";
 
-  angulos.addTag("device", DEVICE);
+  File fp = SPIFFS.open(FILE_EVENTS, "a");  //Abre o arquivo para escrita
 
-  // Check server connection
-  if (client.validateConnection()) {
-    Serial.print("Connected to InfluxDB: ");
-    Serial.println(client.getServerUrl());
+  if (!fp) {
+    Serial.println("Falha ao abrir arquivo");
   } else {
-    Serial.print("InfluxDB connection failed: ");
-    Serial.println(client.getLastErrorMessage());
+    if (fp.print(evento)) {
+      //Serial.println("Evento Adicionado");
+    } else {
+      Serial.println("Erro ao gravar evento");
+    }
+
+    fp.close();
+  }
+
+  Serial.print("Número de eventos: ");
+  Serial.print(lerNumEventos());
+}
+
+int lerNumEventos() {
+  File fp = SPIFFS.open(FILE_EVENTS, "r");
+
+  if (fp) {
+    unsigned int numEventos = 0;
+
+    while (fp.available()) {
+      String linha = fp.readStringUntil('\n');
+      Serial.println(linha);
+      numEventos++;
+    }
+    fp.close();
+    return numEventos - 1;
+  } else {
+    Serial.println("Erro ao abrir o arquivo");
+    return 0;
   }
 }
 
-void Add_Event(String event) {
+String lerEvento(int numEvento) {
+  File fp = SPIFFS.open(FILE_EVENTS, "r");
+  String linha;
 
-    // if(Wifi.status == WL_CONNECTED){
-    //   switch(event){
-    //     case EVT_BLOQUEIO:
+  if (fp) {
+    for (int i = 0; i <= numEvento; i++) {
+      if (fp.available()) {
+        linha = fp.readStringUntil('\n');
+      }
+    }
+    fp.close();
+    // Parse da linha de dados
+    String data, hora, tipoEvento, angLat, angFront;
+    //float angLat, angFront;
 
-    //       break;
-    //   }
-    // }
+    int pos1 = linha.indexOf(';');
+    data = linha.substring(0, pos1);
 
-  angulos.clearFields();
-  angulos.addField("AnguloLateral", AnguloLateral, 2);
-  angulos.addField("AnguloFrontal", AnguloFrontal, 2);
+    int pos2 = linha.indexOf(';', pos1 + 1);
+    hora = linha.substring(pos1 + 1, pos2);
 
-  Serial.print("Writing: ");
-  Serial.println(client.pointToLineProtocol(angulos));
+    int pos3 = linha.indexOf(';', pos2 + 1);
+    tipoEvento = linha.substring(pos2 + 1, pos3);
 
-  if (!client.writePoint(angulos)) {
-    Serial.print("InfluxDB write failed: ");
-    Serial.println(client.getLastErrorMessage());
+    int pos4 = linha.indexOf(';', pos3 + 1);
+    angLat = linha.substring(pos3 + 1, pos4);
+    angFront = linha.substring(pos4 + 1);
+
+    // Criar objeto JSON
+    DynamicJsonDocument doc(200);
+    JsonObject evento = doc.createNestedObject("evento");
+    evento["data"] = data;
+    evento["hora"] = hora;
+    evento["tipoEvento"] = tipoEvento;
+    evento["AngLat"] = angLat;
+    evento["AngFront"] = angFront;
+
+    // Serializar o JSON para uma string
+    String jsonString;
+    serializeJson(doc, jsonString);
+    Serial.println(jsonString);
+    return jsonString;
+  } else {
+    Serial.println("Erro ao abrir o arquivo");
+    return "X";
   }
 }

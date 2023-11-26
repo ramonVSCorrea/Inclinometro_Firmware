@@ -27,6 +27,8 @@ void Task_MPU6050(void* pvParameters) {
   unsigned long timer = 0;
 
   while (1) {
+    xSemaphoreTake(i2cMutex, portMAX_DELAY);
+
     mpu.update();
     AnguloLateral = mpu.getAngleY() + (Angulo_Calib_Lat*(-1));
     AnguloFrontal = mpu.getAngleX() + (Angulo_Calib_Front*(-1));
@@ -40,7 +42,8 @@ void Task_MPU6050(void* pvParameters) {
       timer = millis();
     }
 #endif
-    //Add_Event();
+    //Add_Event(EVT_BLOQUEIO);
+    xSemaphoreGive(i2cMutex);
     vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }

@@ -2,6 +2,7 @@
 #define LED_VERMELHO 27  //LED para indicar condição insegura (ALERTA e BLOQUEIO)
 #define BUZZER 19
 
+bool evt_blq = false;
 
 /**
 * @brief Função que verifica se o inclinômetro está em condição de bloqueio
@@ -10,8 +11,13 @@ void verificaCondicaoAtual() {
   // Verifica se está em condição de bloqueio
   if (((AnguloLateral >= Angulo_BLQ_Lat) || (AnguloFrontal >= Angulo_BLQ_Front)) || ((AnguloLateral * (-1) >= Angulo_BLQ_Lat) || (AnguloFrontal * (-1) >= Angulo_BLQ_Front))) {
     Flag_BLQ = true;
+    if(!evt_blq){
+      Add_Event(EVT_BLOQUEIO);
+      evt_blq = true;
+    }
   } else {
     Flag_BLQ = false;
+    evt_blq = false;
   }
 
   // Verifica se está em condição de Alerta
@@ -28,7 +34,6 @@ void verificaCondicaoAtual() {
 */
 void sinalizaBloqueio() {
   digitalWrite(LED_VERDE, LOW);
-
   digitalWrite(LED_VERMELHO, HIGH);
   digitalWrite(BUZZER, HIGH);
   vTaskDelay(50 / portTICK_PERIOD_MS);
