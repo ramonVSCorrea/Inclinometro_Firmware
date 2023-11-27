@@ -68,7 +68,7 @@ void BT_Write_Leituras() {
 void BT_Read_Info() {
   if (SerialBT.available()) {
 
-    String msgBT = SerialBT.readStringUntil('\n');-*
+    String msgBT = SerialBT.readStringUntil('\n');
 
 #ifdef DBG_MSG_BLUE
     Serial.println("Mensagem recebida: " + msgBT);
@@ -81,7 +81,7 @@ void BT_Read_Info() {
 
       if (cJSON_IsObject(root)) {
         cJSON* configuracoesBLQ = cJSON_GetObjectItem(root, CONFIG_BLQ);
-        cJSON* comandoBascula = cJSON_GetObjectItem(root, CMD_+6BASC);
+        cJSON* comandoBascula = cJSON_GetObjectItem(root, CMD_BASC);
         cJSON* requisitaLeitura = cJSON_GetObjectItem(root, CMD_LEITURA);
         cJSON* requisitaConfig = cJSON_GetObjectItem(root, CMD_LER_CFG);
         cJSON* configCalib = cJSON_GetObjectItem(root, CONFIG_CALIB);
