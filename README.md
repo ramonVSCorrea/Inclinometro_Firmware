@@ -14,7 +14,9 @@ https://dl.espressif.com/dl/package_esp32_index.json
 Clique em "Ferramentas / Placas / Gerenciador de Placas". Na janela do gerenciador de placas busque por "esp32".
 Irá aparecer a opção "esp32 by Espressif Systems", instale ela.
 
-Após instalado selecione a placa que você irá trabalhar clicando em "Ferramentas / Placa" e selecionando o modelo "DOIT ESP32 DEVKIT V1"
+Após instalado selecione a placa que você irá trabalhar clicando em "Ferramentas / Placa" e selecionando o modelo "ESP32 Dev Module"
+
+Clique em "Ferramentas / Partition Scheme" e selecione a opção "No OTA (2MB APP / 2MB SPIFFS)".
 
 ### Inclusão de Bibliotecas:
 
@@ -23,6 +25,8 @@ Abrindo uma janela do gerenciador de bibliotecas, instale as seguintes bibliotec
 
 - ESP32Servo by Kevin Harrington;
 - MPU6050_light by rfetick;
+- RTClib by Adafruit;
+- ArduinoJson by Benoit Blanchon;
 
 ## Circuito
 
