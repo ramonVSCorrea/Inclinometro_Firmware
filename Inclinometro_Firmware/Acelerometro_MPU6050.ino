@@ -17,6 +17,8 @@ void Init_MPU6050() {
   while (status != 0) {}
 
   Serial.println("Offsets calculados!\n");
+
+   mpu.upsideDownMounting = true; 
 }
 
 

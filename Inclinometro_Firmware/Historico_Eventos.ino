@@ -4,6 +4,11 @@
 
 //#define DBG_MSG_EVENTS
 
+/**
+* @brief Função para salvar evento na SPIFFS
+* 
+* @param evt Tipo do evento
+*/
 void Add_Event(int evt) {
   String evento = data + ";" + hora + ";";
 
@@ -43,6 +48,10 @@ void Add_Event(int evt) {
 
   evento += String(fabs(AnguloLateral)) + ";" + String(fabs(AnguloFrontal)) + "\n";
 
+  /*
+    Cria um arquivo contendo o conteúdo 
+    do evento.
+  */
   File fp = SPIFFS.open(FILE_EVENTS, "a");  //Abre o arquivo para escrita
 
   if (!fp) {
@@ -62,6 +71,12 @@ void Add_Event(int evt) {
 #endif
 }
 
+
+/**
+* @brief Função para ler número de eventos registrados
+*
+* @return Retorna o número de eventos
+*/
 int lerNumEventos() {
   File fp = SPIFFS.open(FILE_EVENTS, "r");
 
@@ -83,6 +98,13 @@ int lerNumEventos() {
   }
 }
 
+
+/**
+* @brief Função para ler o conteúdo de um arquivo de um evento
+*
+* @param numEvento Número do evento que você deseja ler
+* @return Conteúdo do arquivo do evento no formato JSON
+*/
 String lerEvento(int numEvento) {
   File fp = SPIFFS.open(FILE_EVENTS, "r");
   String linha;

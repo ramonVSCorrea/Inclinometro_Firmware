@@ -30,8 +30,8 @@ void Task_Servo(void* pvParameters) {
 #ifdef DBG_MSG_SERVO
       Serial.println("SUBINDO");
 #endif
-      if (posServo < 180) {
-        while (posServo < 180) {
+      if (posServo < 50) {
+        while (posServo < 50) {
           if (Flag_BLQ || digitalRead(BUTTON_DOWN) == LOW || cmdDescer) break;
 
           servo.write(posServo);
