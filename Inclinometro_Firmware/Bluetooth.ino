@@ -18,6 +18,7 @@
 #define CMD_BASC "comandoBascula"
 #define CMD_LEITURA "requisicaoLeitura"
 #define CMD_LER_CFG "requisitaCfg"
+#define CMD_ALTERA_DATA "alteraData"
 #define JSON_SUBIR "subir"
 #define JSON_DESCER "descer"
 
@@ -87,6 +88,7 @@ void BT_Read_Info() {
         cJSON* configCalib = cJSON_GetObjectItem(root, CONFIG_CALIB);
         cJSON* totalEventos = cJSON_GetObjectItem(root, TOTAL_EVENTOS);
         cJSON* lerEventoJSON = cJSON_GetObjectItem(root, LER_EVENTOS);
+        cJSON* alteraData = cJSON_GetObjectItem(root, CMD_ALTERA_DATA);
 
         /**
           Se recebeu uma mensagem de requisicao de leitura
@@ -268,7 +270,7 @@ void BT_Read_Info() {
             {
               "evento":{
                 "data": "26/11/2023",
-                "hora": "8:34:13",
+                "hora": "08:34:13",
                 "tipoEvento": "BLOQUEIO",
                 "AngLat": 3.98,
                 "AngFront": 0.42
@@ -279,6 +281,39 @@ void BT_Read_Info() {
         else if (lerEventoJSON) {
           int numEvento = cJSON_GetNumberValue(lerEventoJSON);
           SerialBT.println(lerEvento(numEvento));
+        }
+
+        /*
+          Mensagem recebida:
+
+          {
+            "alteraData":{
+              "dia": 03,
+              "mes": 02,
+              "ano": 2001,
+              "hora": 08,
+              "minuto": 00
+            }
+          }
+        */
+
+        else if(alteraData){
+          cJSON* node = cJSON_GetObjectItem(alteraData, "dia");
+          diaAtual = cJSON_GetNumberValue(node);
+
+          node = cJSON_GetObjectItem(alteraData, "mes");
+          mesAtual = cJSON_GetNumberValue(node);
+
+          node = cJSON_GetObjectItem(alteraData, "ano");
+          anoAtual = cJSON_GetNumberValue(node);
+
+          node = cJSON_GetObjectItem(alteraData, "hora");
+          horaAtual = cJSON_GetNumberValue(node);
+
+          node = cJSON_GetObjectItem(alteraData, "minuto");
+          minutoAtual = cJSON_GetNumberValue(node);
+          
+          flag_altera_data = true;
         }
 
         while (SerialBT.available()) {

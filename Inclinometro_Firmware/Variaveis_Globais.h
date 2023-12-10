@@ -26,4 +26,13 @@ bool cmdDescer = false;  // Comando de descida da bascula
 String data = "00/00/0000";  // String para guardar data
 String hora = "00:00:00";    //String para guardar hora
 
+unsigned char diaAtual = 0;
+unsigned char mesAtual = 0;
+unsigned int anoAtual = 0;
+
+unsigned char horaAtual = 0;
+unsigned char minutoAtual = 0;
+
+bool flag_altera_data = false;
+
 SemaphoreHandle_t i2cMutex = xSemaphoreCreateMutex();  // Mutex para I2C

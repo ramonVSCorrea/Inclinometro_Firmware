@@ -26,6 +26,10 @@ void Init_RTC() {
 void Task_RTC(void* pvParameters) {
   while (1) {
     xSemaphoreTake(i2cMutex, portMAX_DELAY);
+    if(flag_altera_data){
+      setTimeRTC();
+    }
+
     DateTime now = rtc.now();
 
     data = zeroFill(String(now.day(), DEC)) + "/" + zeroFill(String(now.month(), DEC)) + "/" + zeroFill(String(now.year(), DEC));
@@ -45,4 +49,10 @@ String zeroFill(String value) {
   } else{
     return value;
   }
+}
+
+void setTimeRTC(){
+  rtc.adjust(DateTime(anoAtual, mesAtual, diaAtual, horaAtual, minutoAtual, 0));
+  flag_altera_data = false;
+  Serial.println("Data Alterada!");
 }
