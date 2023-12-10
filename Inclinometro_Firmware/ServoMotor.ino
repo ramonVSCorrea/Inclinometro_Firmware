@@ -8,7 +8,7 @@
 
 Servo servo;
 
-int posServo = 0;  //Variável que indica ângulo de inclinação do motor
+float posServo = 0;  //Variável que indica ângulo de inclinação do motor
 
 /**
 * @brief Tarefa que comanda o servo motor
@@ -35,9 +35,9 @@ void Task_Servo(void* pvParameters) {
           if (Flag_BLQ || digitalRead(BUTTON_DOWN) == LOW || cmdDescer) break;
 
           servo.write(posServo);
-          posServo++;
+          posServo += 0.2;
 
-          vTaskDelay(20 / portTICK_PERIOD_MS);
+          vTaskDelay(10 / portTICK_PERIOD_MS);
         }
       }
       cmdSubir = false;
@@ -58,9 +58,9 @@ void Task_Servo(void* pvParameters) {
           if (digitalRead(BUTTON_UP) == LOW || cmdSubir) break;
 
           servo.write(posServo);
-          posServo--;
+          posServo -= 0.2;
 
-          vTaskDelay(20 / portTICK_PERIOD_MS);
+          vTaskDelay(10 / portTICK_PERIOD_MS);
         }
       }
       cmdSubir = false;
