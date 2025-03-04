@@ -33,10 +33,6 @@ void setup() {
   // Tarefa de conexão Wi-Fi
   xTaskCreate(taskWiFiConnection, "Tarefa_WiFi", 8192, NULL,
               configMAX_PRIORITIES - 6, NULL);
-
-  // Tarefa de comunicação HTTP
-  xTaskCreate(taskHttpCommunication, "Tarefa_HTTP", 8192, NULL,
-              configMAX_PRIORITIES - 7, NULL);
 }
 
 void loop() {}

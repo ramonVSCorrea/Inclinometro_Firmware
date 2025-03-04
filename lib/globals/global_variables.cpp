@@ -22,3 +22,5 @@ bool commandLower = false;
 
 // WiFi variables
 bool isWiFiConnected = false;
+
+String id = "AAAA";

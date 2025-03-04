@@ -8,7 +8,9 @@
 #include "cJSON.h"
 #include "configs_manager.h"
 #include "define_pins.h"
+#include "events_constants.h"
 #include "global_variables.h"
+#include "http_communication.h"
 
 // #define DBG_MSG_BLUE
 #define CONFIG_BLQ "configuracoesBLQ"

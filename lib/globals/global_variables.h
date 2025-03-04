@@ -26,4 +26,6 @@ extern bool commandLower;
 // WiFi variables
 extern bool isWiFiConnected;
 
+extern String id;
+
 #endif  // GLOBAL_VARIABLES_H

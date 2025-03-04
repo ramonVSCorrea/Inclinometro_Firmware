@@ -1,5 +1,4 @@
 #include "signaling.h"
-#include "global_variables.h"  // Buzzer para sinalização sonora
 
 bool isEventBlocked =
     false;  // Indica se um evento de bloqueio já foi registrado
@@ -12,7 +11,8 @@ void checkCurrentCondition() {
        (frontalAngle * (-1) >= blockFrontalAngle))) {
     isBlocked = true;
     if (!isEventBlocked) {
-      // addEvent(EVENT_BLOCK);
+      sendMessageToServer(
+          buildEventPayload(EVENT_BLOCK, EVENT_BLOCK_DESCRIPTION));
       isEventBlocked = true;
     }
   } else {

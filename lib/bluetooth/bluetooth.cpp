@@ -15,7 +15,8 @@ void taskBluetooth(void* pvParameters) {
     if (SerialBT.connected()) {
       digitalWrite(YELLOW_LED_PIN, HIGH);
       if (!evtConnected) {
-        // Add_Event(EVT_SENSOR_CONECTADO);
+        sendMessageToServer(buildEventPayload(
+            EVENT_SENSOR_CONNECTED, EVENT_SENSOR_CONNECTED_DESCRIPTION));
         evtConnected = true;
       }
       readBluetoothData();
@@ -140,7 +141,9 @@ void readBluetoothData() {
           blockFrontalAngle = cJSON_GetNumberValue(node);
           setBlockConfigs();
 
-          // Add_Event(EVT_BLQ_ALTERADO);
+          sendMessageToServer(
+              buildEventPayload(EVENT_BLOCK_VALUE_CHANGED,
+                                EVENT_BLOCK_VALUE_CHANGED_DESCRIPTION));
         }
 
         /*
@@ -187,102 +190,16 @@ void readBluetoothData() {
             calibrateLateralAngle += lateralAngle;
             calibrateFrontalAngle += frontalAngle;
             setCalibrationConfigs();
-            // Add_Event(EVT_SENSOR_CALIBRADO);
+            sendMessageToServer(buildEventPayload(
+                EVENT_SENSOR_CALIBRATED, EVENT_SENSOR_CALIBRATED_DESCRIPTION));
           } else if (cJSON_GetNumberValue(configCalib) == 0) {
             calibrateLateralAngle = 0;
             calibrateFrontalAngle = 0;
             setCalibrationConfigs();
-            // Add_Event(EVT_SENSOR_LIMPO);
+            sendMessageToServer(buildEventPayload(
+                EVENT_SENSOR_CLEARED, EVENT_SENSOR_CLEARED_DESCRIPTION));
           }
         }
-
-        /*
-          Se recebeu mensagem de ler eventos,
-          retorna a leitura do evento solicitado.
-
-          Mensagem recebida:
-
-          {
-            "totalEventos" = 1
-          }
-
-          Mensagem Enviada:
-
-          {
-            "totalEventos" = 100
-          }
-      */
-        //         else if (totalEventos) {
-        //           if (cJSON_GetNumberValue(totalEventos) == 1) {
-        //             String resposta =
-        //                 "{\"totalEventos\": " + String(lerNumEventos()) +
-        //                 "}";
-
-        // #ifdef DBG_MSG_BLUE
-        //             Serial.println("Mensagem recebida: " + msgBT);
-        // #endif
-
-        //             SerialBT.println(resposta);
-        //           }
-        //         }
-
-        //         /*
-        //           Mensagem recebida:
-
-        //           {
-        //             "numEvento": 7
-        //           }
-
-        //           Mensagem Enviada:
-
-        //             {
-        //               "evento":{
-        //                 "data": "26/11/2023",
-        //                 "hora": "08:34:13",
-        //                 "tipoEvento": "BLOQUEIO",
-        //                 "AngLat": 3.98,
-        //                 "AngFront": 0.42
-        //               }
-        //             }
-        //         */
-
-        //         else if (lerEventoJSON) {
-        //           int numEvento = cJSON_GetNumberValue(lerEventoJSON);
-        //           SerialBT.println(lerEvento(numEvento));
-        //         }
-
-        //         /*
-        //           Mensagem recebida:
-
-        //           {
-        //             "alteraData":{
-        //               "dia": 03,
-        //               "mes": 02,
-        //               "ano": 2001,
-        //               "hora": 08,
-        //               "minuto": 00
-        //             }
-        //           }
-        //         */
-
-        //         else if (alteraData) {
-        //           cJSON* node = cJSON_GetObjectItem(alteraData, "dia");
-        //           diaAtual = cJSON_GetNumberValue(node);
-
-        //           node = cJSON_GetObjectItem(alteraData, "mes");
-        //           mesAtual = cJSON_GetNumberValue(node);
-
-        //           node = cJSON_GetObjectItem(alteraData, "ano");
-        //           anoAtual = cJSON_GetNumberValue(node);
-
-        //           node = cJSON_GetObjectItem(alteraData, "hora");
-        //           horaAtual = cJSON_GetNumberValue(node);
-
-        //           node = cJSON_GetObjectItem(alteraData, "minuto");
-        //           minutoAtual = cJSON_GetNumberValue(node);
-
-        //           flag_altera_data = true;
-        //         }
 
         while (SerialBT.available()) {
           SerialBT.read();
