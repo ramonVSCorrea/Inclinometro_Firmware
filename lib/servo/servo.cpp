@@ -6,8 +6,6 @@ float servoAngle = 0.0;  // Ângulo atual do servo motor
 
 void taskServoMotor(void* pvParameters) {
   // Inicializa os pinos do botão e do servo
-  pinMode(BUTTON_UP, INPUT_PULLUP);
-  pinMode(BUTTON_DOWN, INPUT_PULLUP);
   servoMotor.attach(SERVO_PIN);
   servoMotor.write(0);
 
@@ -17,13 +15,13 @@ void taskServoMotor(void* pvParameters) {
      * Durante a subida, se a condição de bloqueio ocorrer ou o usuário
      * pressionar BUTTON_DOWN, o movimento para.
      */
-    if (digitalRead(BUTTON_UP) == LOW || commandRaise) {
+    if (commandRaise) {
 #ifdef DEBUG_SERVO
       Serial.println("SUBINDO");
 #endif
       if (servoAngle < 50) {
         while (servoAngle < 50) {
-          if (isBlocked || digitalRead(BUTTON_DOWN) == LOW || commandLower)
+          if (isBlocked || commandLower)
             break;
 
           servoMotor.write(servoAngle);
@@ -39,13 +37,13 @@ void taskServoMotor(void* pvParameters) {
      * Se BUTTON_DOWN for pressionado, a bascula desce caso esteja alta.
      * Durante a descida, se o usuário pressionar BUTTON_UP, o movimento para.
      */
-    else if (digitalRead(BUTTON_DOWN) == LOW || commandLower) {
+    else if (commandLower) {
 #ifdef DEBUG_SERVO
       Serial.println("DESCENDO");
 #endif
       if (servoAngle > 0) {
         while (servoAngle > 0) {
-          if (digitalRead(BUTTON_UP) == LOW || commandRaise)
+          if (commandRaise)
             break;
 
           servoMotor.write(servoAngle);

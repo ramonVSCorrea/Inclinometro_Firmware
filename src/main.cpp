@@ -3,6 +3,7 @@
 #include "bluetooth.h"
 #include "configs_manager.h"
 #include "global_variables.h"
+#include "gps.h"
 #include "http_communication.h"
 #include "servo.h"
 #include "signaling.h"
@@ -33,6 +34,10 @@ void setup() {
   // Tarefa de conexão Wi-Fi
   xTaskCreate(taskWiFiConnection, "Tarefa_WiFi", 8192, NULL,
               configMAX_PRIORITIES - 6, NULL);
+
+  // Tarefa de GPS
+  xTaskCreate(taskGPS, "Tarefa_GPS", 4096, NULL, configMAX_PRIORITIES - 5,
+              NULL);
 }
 
 void loop() {}
