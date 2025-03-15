@@ -1,5 +1,7 @@
 #include "http_communication.h"
 
+#define DBG_MSG_HTTP
+
 String buildInclinationDataPayload() {
   return "{"
          "\"variable\":\"inclinationData\","
@@ -10,6 +12,12 @@ String buildInclinationDataPayload() {
          ","
          "\"frontalAngle\":" +
          String(frontalAngle) +
+         ","
+         "\"latitude\":" +
+         String(latitude, 6) +
+         ","
+         "\"longitude\":" +
+         String(longitude, 6) +
          "},"
          "\"group\":\"" +
          id +
@@ -33,6 +41,12 @@ String buildEventPayload(String event, String description) {
          ","
          "\"frontalAngle\":" +
          String(frontalAngle) +
+         ","
+         "\"latitude\":" +
+         String(latitude, 6) +
+         ","
+         "\"longitude\":" +
+         String(longitude, 6) +
          "},"
          "\"group\":\"" +
          id +
@@ -48,6 +62,7 @@ void sendMessageToServer(String payload) {
     http.addHeader("Device-Token", DEVICE_TOKEN);
 
     int httpResponseCode = http.POST(payload);
+#ifdef DBG_MSG_HTTP
     if (httpResponseCode > 0) {
       Serial.print("HTTP Response code: ");
       Serial.print(httpResponseCode);
@@ -57,6 +72,7 @@ void sendMessageToServer(String payload) {
       Serial.print("Error code: ");
       Serial.println(httpResponseCode);
     }
+#endif
   } else {
     Serial.println("WiFi not connected");
   }

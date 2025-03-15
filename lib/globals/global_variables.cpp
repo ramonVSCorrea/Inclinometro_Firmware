@@ -23,4 +23,8 @@ bool commandLower = false;
 // WiFi variables
 bool isWiFiConnected = false;
 
+// GPS variables
+double latitude = 0.0;
+double longitude = 0.0;
+
 String id = "AAAA";

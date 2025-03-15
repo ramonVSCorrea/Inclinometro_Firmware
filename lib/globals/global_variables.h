@@ -26,6 +26,10 @@ extern bool commandLower;
 // WiFi variables
 extern bool isWiFiConnected;
 
+// GPS variables
+extern double latitude;
+extern double longitude;
+
 extern String id;
 
 #endif  // GLOBAL_VARIABLES_H
