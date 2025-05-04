@@ -4,7 +4,7 @@ bool evtConnected = false;
 BluetoothSerial SerialBT;
 
 void taskBluetooth(void* pvParameters) {
-  SerialBT.begin("Inclinometro");
+  SerialBT.begin("IncliMax - 1234");
   pinMode(YELLOW_LED_PIN, OUTPUT);
 
   while (1) {
