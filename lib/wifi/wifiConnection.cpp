@@ -1,0 +1,75 @@
+#include "wifiConnection.h"
+
+void taskWiFiConnection(void* pvParameters) {
+  Serial.println("\nConectando ao Wi-Fi...");
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  int timeoutWifiConnection = 30;
+
+  while (WiFi.status() != WL_CONNECTED && timeoutWifiConnection > 0) {
+    Serial.print(".");
+    delay(1000);
+    timeoutWifiConnection--;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    isWiFiConnected = true;
+    Serial.println("\nWi-Fi conectado!");
+    Serial.print("Endereço IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\n❌ Falha ao conectar ao Wi-Fi.");
+    printWiFiError(WiFi.status());
+  }
+
+  while (1) {
+    if (WiFi.status() != WL_CONNECTED) {
+      isWiFiConnected = false;
+      Serial.println("\nWi-Fi desconectado! Tentando reconectar...");
+      WiFi.disconnect();
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+      int attempts = 0;
+      while (WiFi.status() != WL_CONNECTED && attempts < 15) {  // 15 tentativas
+        Serial.print(".");
+        delay(1000);
+        attempts++;
+      }
+
+      if (WiFi.status() == WL_CONNECTED) {
+        isWiFiConnected = true;
+        Serial.println("\nReconectado ao Wi-Fi!");
+        Serial.print("Novo IP: ");
+        Serial.println(WiFi.localIP());
+      } else {
+        Serial.println(
+            "\nRede indisponível. Tentando novamente em 10 segundos...");
+        vTaskDelay(pdMS_TO_TICKS(10000));
+        isWiFiConnected =
+            false;  // Aguarda 10 segundos antes da próxima tentativa
+      }
+    }
+    vTaskDelay(pdMS_TO_TICKS(5000));  // Verifica a cada 5 segundos
+  }
+}
+
+void printWiFiError(int status) {
+  Serial.print("⚠️ Erro de conexão Wi-Fi: ");
+  switch (status) {
+    case WL_NO_SSID_AVAIL:
+      Serial.println("Rede Wi-Fi não encontrada! Verifique o SSID.");
+      break;
+    case WL_CONNECT_FAILED:
+      Serial.println("Falha na autenticação! Verifique a senha.");
+      break;
+    case WL_CONNECTION_LOST:
+      Serial.println("Conexão perdida! Verifique o sinal.");
+      break;
+    case WL_DISCONNECTED:
+      Serial.println("ESP32 não está conectado a nenhuma rede.");
+      break;
+    default:
+      Serial.println("Motivo desconhecido.");
+      break;
+  }
+}
