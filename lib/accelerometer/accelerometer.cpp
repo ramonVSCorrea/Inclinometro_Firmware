@@ -3,7 +3,7 @@
 #include <Wire.h>
 #include "global_variables.h"
 
-#define DBG_MSG_MPU6050
+// #define DBG_MSG_MPU6050
 
 MPU6050 mpu(Wire);
 
@@ -48,16 +48,16 @@ void taskAccelerometerMPU6050(void* parameter) {
     lateralAngle = mpu.getAngleY() + (calibrateLateralAngle * (-1));
     frontalAngle = mpu.getAngleX() + (calibrateFrontalAngle * (-1));
 
-#ifdef DBG_MSG_MPU6050
     if ((millis() - timer) > 1000) {
+#ifdef DBG_MSG_MPU6050
       Serial.print("Lateral : ");
       Serial.print(lateralAngle);
       Serial.print("\tFrontal : ");
       Serial.println(frontalAngle);
+#endif
       sendMessageToServer(buildInclinationDataPayload());
       timer = millis();
     }
-#endif
 
     // xSemaphoreGive(i2cMutex);
     vTaskDelay(1 / portTICK_PERIOD_MS);

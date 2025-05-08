@@ -7,6 +7,7 @@
 #include "http_communication.h"
 #include "servo.h"
 #include "signaling.h"
+#include "update_configs.h"
 #include "wifiConnection.h"
 
 void setup() {
@@ -38,6 +39,10 @@ void setup() {
   // Tarefa de GPS
   xTaskCreate(taskGPS, "Tarefa_GPS", 4096, NULL, configMAX_PRIORITIES - 5,
               NULL);
+
+  // Tarefa de verificação de novas configurações
+  xTaskCreate(taskUpdateConfigs, "Tarefa_Update_Configs", 4096, NULL,
+              configMAX_PRIORITIES - 7, NULL);
 }
 
 void loop() {}
