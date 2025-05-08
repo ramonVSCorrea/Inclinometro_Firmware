@@ -54,9 +54,7 @@ void readBluetoothData() {
         cJSON* requisitaLeitura = cJSON_GetObjectItem(root, CMD_LEITURA);
         cJSON* requisitaConfig = cJSON_GetObjectItem(root, CMD_LER_CFG);
         cJSON* configCalib = cJSON_GetObjectItem(root, CONFIG_CALIB);
-        cJSON* totalEventos = cJSON_GetObjectItem(root, TOTAL_EVENTOS);
-        cJSON* lerEventoJSON = cJSON_GetObjectItem(root, LER_EVENTOS);
-        cJSON* alteraData = cJSON_GetObjectItem(root, CMD_ALTERA_DATA);
+        cJSON* configWiFi = cJSON_GetObjectItem(root, CONFIG_WIFI);
 
         /**
           Se recebeu uma mensagem de requisicao de leitura
@@ -96,11 +94,15 @@ void readBluetoothData() {
           --- Mensagem Enviada ---
 
           {
-            "configuracoes":	{
-              "bloqueioLateral":	3.5,
-              "bloqueioFrontal":	5,
-              "calibracaoLateral":	0,
-              "calibracaoFrontal":	0
+            "configurations": {
+              "blockLateralAngle": 3.5,
+              "blockFrontalAngle": 5,
+              "calibrateLateralAngle": 0,
+              "calibrateFrontalAngle": 0
+            },
+            "wifiConfigs": {
+              "SSID": "[valor da variável wifiSSID]",
+              "password": "[valor da variável wifiPassword]"
             }
           }
       */
@@ -199,6 +201,27 @@ void readBluetoothData() {
             sendMessageToServer(buildEventPayload(
                 EVENT_SENSOR_CLEARED, EVENT_SENSOR_CLEARED_DESCRIPTION));
           }
+        }
+
+        /**
+         * Se recebeu mensagem de configuração do WiFi,
+         * altera os valores de configuração do WiFi no
+         * arquivo de configuração.
+         *
+         * {
+         *  "wifiConfigs": {
+         *    "SSID": "[valor da variável wifiSSID]",
+         *    "password": "[valor da variável wifiPassword]"
+         *   }
+         * }
+         *
+         */
+        else if (configWiFi) {
+          cJSON* node = cJSON_GetObjectItem(configWiFi, "SSID");
+          wifiSSID = cJSON_GetStringValue(node);
+          node = cJSON_GetObjectItem(configWiFi, "password");
+          wifiPassword = cJSON_GetStringValue(node);
+          setWiFiConfigs();
         }
 
         while (SerialBT.available()) {

@@ -9,7 +9,7 @@
 
 // Definição de constantes
 #define FILE_CONFIG "/configs.json"
-#define FILE_EVENTS "/events.csv"
+#define FILE_WIFI_CONFIG "/wifi_config.json"
 #define FORMAT_SPIFFS_IF_FAILED true
 // #define DEBUG_FILE
 
@@ -41,10 +41,8 @@ void setBlockConfigs();
 void setCalibrationConfigs();
 
 /**
- * @brief Cria o arquivo de eventos
- * @return Retorna true se o arquivo foi criado com sucesso, false caso
- * contrário
+ * @brief Altera os valores de configuração do WiFi no arquivo de configurações
  */
-bool createFileEvents();
+void setWiFiConfigs();
 
 #endif  // CONFIGS_MANAGER_H
