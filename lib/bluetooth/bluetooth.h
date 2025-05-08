@@ -17,14 +17,12 @@
 #define CONFIG_CALIB "configuraCalib"
 #define JSON_BLQ_LAT "bloqueioLateral"
 #define JSON_BLQ_FRT "bloqueioFrontal"
-#define TOTAL_EVENTOS "totalEventos"
-#define LER_EVENTOS "numEvento"
 #define CMD_BASC "comandoBascula"
 #define CMD_LEITURA "requisicaoLeitura"
 #define CMD_LER_CFG "requisitaCfg"
-#define CMD_ALTERA_DATA "alteraData"
 #define JSON_SUBIR "subir"
 #define JSON_DESCER "descer"
+#define CONFIG_WIFI "wifiConfigs"
 
 /**
  * @brief Tarefa Bluetooth

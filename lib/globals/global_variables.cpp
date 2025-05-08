@@ -22,6 +22,9 @@ bool commandLower = false;
 
 // WiFi variables
 bool isWiFiConnected = false;
+String wifiSSID = "LIVE TIM_0820_2G";
+String wifiPassword = "a3ehn6rep6";
+bool isWiFiConfigChanged = false;
 
 // GPS variables
 double latitude = 0.0;

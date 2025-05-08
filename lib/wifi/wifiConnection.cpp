@@ -2,7 +2,7 @@
 
 void taskWiFiConnection(void* pvParameters) {
   Serial.println("\nConectando ao Wi-Fi...");
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  WiFi.begin(wifiSSID, wifiPassword);
 
   int timeoutWifiConnection = 30;
 
@@ -23,14 +23,44 @@ void taskWiFiConnection(void* pvParameters) {
   }
 
   while (1) {
-    if (WiFi.status() != WL_CONNECTED) {
+    // Verifica se as credenciais foram alteradas
+    if (isWiFiConfigChanged) {
+      Serial.println("\nCredenciais Wi-Fi alteradas. Reconectando...");
+      WiFi.disconnect();
+      delay(1000);
+      WiFi.begin(wifiSSID, wifiPassword);
+
+      int attempts = 0;
+      while (WiFi.status() != WL_CONNECTED && attempts < 15) {
+        Serial.print(".");
+        delay(1000);
+        attempts++;
+      }
+
+      if (WiFi.status() == WL_CONNECTED) {
+        isWiFiConnected = true;
+        Serial.println("\nConectado com novas credenciais!");
+        Serial.print("Novo IP: ");
+        Serial.println(WiFi.localIP());
+      } else {
+        Serial.println("\n❌ Falha ao conectar com as novas credenciais.");
+        printWiFiError(WiFi.status());
+        isWiFiConnected = false;
+      }
+
+      // Reseta o sinalizador
+      isWiFiConfigChanged = false;
+    }
+
+    // Verificação de desconexão normal (mantém o código existente)
+    else if (WiFi.status() != WL_CONNECTED) {
       isWiFiConnected = false;
       Serial.println("\nWi-Fi desconectado! Tentando reconectar...");
       WiFi.disconnect();
-      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+      WiFi.begin(wifiSSID, wifiPassword);
 
       int attempts = 0;
-      while (WiFi.status() != WL_CONNECTED && attempts < 15) {  // 15 tentativas
+      while (WiFi.status() != WL_CONNECTED && attempts < 15) {
         Serial.print(".");
         delay(1000);
         attempts++;
@@ -45,10 +75,10 @@ void taskWiFiConnection(void* pvParameters) {
         Serial.println(
             "\nRede indisponível. Tentando novamente em 10 segundos...");
         vTaskDelay(pdMS_TO_TICKS(10000));
-        isWiFiConnected =
-            false;  // Aguarda 10 segundos antes da próxima tentativa
+        isWiFiConnected = false;
       }
     }
+
     vTaskDelay(pdMS_TO_TICKS(5000));  // Verifica a cada 5 segundos
   }
 }

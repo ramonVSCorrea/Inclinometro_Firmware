@@ -25,6 +25,9 @@ extern bool commandLower;
 
 // WiFi variables
 extern bool isWiFiConnected;
+extern String wifiSSID;
+extern String wifiPassword;
+extern bool isWiFiConfigChanged;
 
 // GPS variables
 extern double latitude;
