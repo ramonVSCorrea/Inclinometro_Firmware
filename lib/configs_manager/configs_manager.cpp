@@ -3,7 +3,7 @@
 void initializeFiles() {
   SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED);  // Inicia SPIFFS e formata caso falhe
   Serial.println("SPIFFS inicializado!");
-  SPIFFS.remove(FILE_CONFIG);
+  // SPIFFS.remove(FILE_CONFIG);
 
   // Criação dos arquivos caso não existam
   if (!SPIFFS.exists(FILE_CONFIG)) {
@@ -78,6 +78,7 @@ void initializeConfigs() {
 
   if (cJSON_IsObject(root)) {
     cJSON* configs = cJSON_GetObjectItem(root, "configurations");
+    cJSON* wifiConfigs = cJSON_GetObjectItem(root, "wifiConfigs");
 
     cJSON* node = cJSON_GetObjectItem(configs, "blockLateralAngle");
     blockLateralAngle = cJSON_GetNumberValue(node);
@@ -90,6 +91,12 @@ void initializeConfigs() {
 
     node = cJSON_GetObjectItem(configs, "calibrateFrontalAngle");
     calibrateFrontalAngle = cJSON_GetNumberValue(node);
+
+    node = cJSON_GetObjectItem(wifiConfigs, "SSID");
+    wifiSSID = String(cJSON_GetStringValue(node));
+
+    node = cJSON_GetObjectItem(wifiConfigs, "password");
+    wifiPassword = String(cJSON_GetStringValue(node));
   }
 
   cJSON_Delete(root);

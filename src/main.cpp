@@ -16,6 +16,10 @@ void setup() {
   initializeFiles();
   initializeAccelerometerMPU6050();
 
+  // Tarefa de conexão Wi-Fi
+  xTaskCreate(taskWiFiConnection, "Tarefa_WiFi", 8192, NULL,
+              configMAX_PRIORITIES - 1, NULL);
+
   // Tarefa que verifica os valores de inclinação
   xTaskCreate(taskAccelerometerMPU6050, "taskAccelerometerMPU6050", 4096, NULL,
               configMAX_PRIORITIES - 2, NULL);
@@ -32,9 +36,6 @@ void setup() {
   xTaskCreate(taskBluetooth, "Tarefa_Bluetooth", 4096, NULL,
               configMAX_PRIORITIES - 1, NULL);
 
-  // Tarefa de conexão Wi-Fi
-  xTaskCreate(taskWiFiConnection, "Tarefa_WiFi", 8192, NULL,
-              configMAX_PRIORITIES - 6, NULL);
 
   // Tarefa de GPS
   xTaskCreate(taskGPS, "Tarefa_GPS", 4096, NULL, configMAX_PRIORITIES - 5,
