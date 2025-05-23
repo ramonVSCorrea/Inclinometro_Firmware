@@ -12,4 +12,6 @@
  */
 void taskUpdateConfigs(void* pvParameters);
 
+void updateConfigs();
+
 #endif  // UPDATE_CONFIGS_H

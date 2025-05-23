@@ -11,6 +11,9 @@ void checkCurrentCondition() {
        (frontalAngle * (-1) >= blockFrontalAngle))) {
     isBlocked = true;
     if (!isEventBlocked) {
+      while (isHttpRequest) {
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+      }
       sendMessageToServer(
           buildEventPayload(EVENT_BLOCK, EVENT_BLOCK_DESCRIPTION));
       isEventBlocked = true;

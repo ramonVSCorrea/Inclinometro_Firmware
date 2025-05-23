@@ -55,6 +55,9 @@ void taskAccelerometerMPU6050(void* parameter) {
       Serial.print("\tFrontal : ");
       Serial.println(frontalAngle);
 #endif
+      while (isHttpRequest) {
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+      }
       sendMessageToServer(buildInclinationDataPayload());
       timer = millis();
     }

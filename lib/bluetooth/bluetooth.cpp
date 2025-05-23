@@ -15,6 +15,9 @@ void taskBluetooth(void* pvParameters) {
     if (SerialBT.connected()) {
       digitalWrite(YELLOW_LED_PIN, HIGH);
       if (!evtConnected) {
+        while (isHttpRequest) {
+          vTaskDelay(100 / portTICK_PERIOD_MS);
+        }
         sendMessageToServer(buildEventPayload(
             EVENT_SENSOR_CONNECTED, EVENT_SENSOR_CONNECTED_DESCRIPTION));
         evtConnected = true;
@@ -143,6 +146,9 @@ void readBluetoothData() {
           blockFrontalAngle = cJSON_GetNumberValue(node);
           setBlockConfigs();
 
+          while (isHttpRequest) {
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+          }
           sendMessageToServer(
               buildEventPayload(EVENT_BLOCK_VALUE_CHANGED,
                                 EVENT_BLOCK_VALUE_CHANGED_DESCRIPTION));
@@ -192,12 +198,18 @@ void readBluetoothData() {
             calibrateLateralAngle += lateralAngle;
             calibrateFrontalAngle += frontalAngle;
             setCalibrationConfigs();
+            while (isHttpRequest) {
+              vTaskDelay(100 / portTICK_PERIOD_MS);
+            }
             sendMessageToServer(buildEventPayload(
                 EVENT_SENSOR_CALIBRATED, EVENT_SENSOR_CALIBRATED_DESCRIPTION));
           } else if (cJSON_GetNumberValue(configCalib) == 0) {
             calibrateLateralAngle = 0;
             calibrateFrontalAngle = 0;
             setCalibrationConfigs();
+            while (isHttpRequest) {
+              vTaskDelay(100 / portTICK_PERIOD_MS);
+            }
             sendMessageToServer(buildEventPayload(
                 EVENT_SENSOR_CLEARED, EVENT_SENSOR_CLEARED_DESCRIPTION));
           }

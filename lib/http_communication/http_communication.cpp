@@ -85,103 +85,128 @@ String buildDeviceConfigurationsPayload() {
 }
 
 void sendMessageToServer(String payload) {
-  if (isWiFiConnected) {
-    HTTPClient http;
-    http.begin(SERVER_URL);
-    http.addHeader("Content-Type", "application/json");
-    http.addHeader("Device-Token", DEVICE_TOKEN);
+  isHttpRequest = true;
 
-    int httpResponseCode = http.POST(payload);
-#ifdef DBG_MSG_HTTP
-    if (httpResponseCode > 0) {
-      Serial.print("HTTP Response code: ");
-      Serial.print(httpResponseCode);
-      Serial.print(" - Body: ");
-      Serial.println(payload);
+  if (xSemaphoreTake(httpMutex, pdMS_TO_TICKS(5000)) == pdTRUE) {
+    if (isWiFiConnected) {
+      WiFiClient client;  // Criar um novo cliente para cada requisição
+      HTTPClient http;
+
+      // Usar o cliente explicitamente
+      if (http.begin(client, SERVER_URL)) {
+        http.addHeader("Content-Type", "application/json");
+        http.addHeader("Device-Token", DEVICE_TOKEN);
+
+        int httpResponseCode = http.POST(payload);
+        Serial.println("🛫 Payload enviado: " + payload);
+
+        // Ler a resposta (importante para liberar recursos)
+        if (httpResponseCode > 0) {
+          String response = http.getString();
+          Serial.println("✅ Código de resposta HTTP: " + response + "\n\n");
+        }
+
+        // Garantir que a conexão seja fechada corretamente
+        http.end();
+      } else {
+        Serial.println("Não foi possível iniciar a requisição HTTP");
+      }
     } else {
-      Serial.print("Error code: ");
-      Serial.println(httpResponseCode);
+      Serial.println("WiFi not connected");
     }
-#endif
+    xSemaphoreGive(httpMutex);
+    isHttpRequest = false;
   } else {
-    Serial.println("WiFi not connected");
+    Serial.println("Não foi possível obter o mutex para HTTP.");
   }
 }
 
 String retrieveLastConfigUpdate() {
+  isHttpRequest = true;
   String metadata = "{}";  // Valor padrão caso ocorra algum erro
 
-  if (isWiFiConnected) {
-    HTTPClient http;
+  if (xSemaphoreTake(httpMutex, pdMS_TO_TICKS(5000)) == pdTRUE) {
+    if (isWiFiConnected) {
+      WiFiClient client;  // Criar um novo cliente para cada requisição
+      HTTPClient http;
 
-    // Constrói a URL com os parâmetros de consulta
-    String url = String(SERVER_URL) + "?variables=updateDeviceConfigurations" +
-                 "&groups=" + id + "&query=last_value";
+      // Constrói a URL com os parâmetros de consulta
+      String url = String(SERVER_URL) +
+                   "?variables=updateDeviceConfigurations" + "&groups=" + id +
+                   "&query=last_value";
 
-    http.begin(url);
-    http.addHeader("Device-Token", DEVICE_TOKEN);
+      // Usar o cliente explicitamente
+      if (http.begin(client, url)) {
+        http.addHeader("Device-Token", DEVICE_TOKEN);
 
-    int httpResponseCode = http.GET();
-
-#ifdef DBG_MSG_HTTP
-    Serial.print("Requisição GET para: ");
-    Serial.println(url);
-#endif
-
-    if (httpResponseCode > 0) {
-#ifdef DBG_MSG_HTTP
-      Serial.print("HTTP Response code (GET): ");
-      Serial.println(httpResponseCode);
-#endif
-
-      String response = http.getString();
+        int httpResponseCode = http.GET();
 
 #ifdef DBG_MSG_HTTP
-      Serial.print("Resposta completa: ");
-      Serial.println(response);
+        Serial.print("Requisição GET para: ");
+        Serial.println(url);
 #endif
 
-      // Parse do JSON para extrair apenas o metadata
-      cJSON* root = cJSON_Parse(response.c_str());
-      if (root != NULL) {
-        // Verifica se a resposta foi bem-sucedida
-        cJSON* status = cJSON_GetObjectItem(root, "status");
-        if (cJSON_IsTrue(status)) {
-          // Obtém o array de resultados
-          cJSON* result = cJSON_GetObjectItem(root, "result");
-          if (cJSON_IsArray(result) && cJSON_GetArraySize(result) > 0) {
-            // Obtém o primeiro item do array
-            cJSON* item = cJSON_GetArrayItem(result, 0);
-            if (item != NULL) {
-              // Obtém o objeto metadata
-              cJSON* metadataObj = cJSON_GetObjectItem(item, "metadata");
-              if (metadataObj != NULL) {
-                // Converte o objeto metadata para string
-                char* metadataStr = cJSON_Print(metadataObj);
-                if (metadataStr != NULL) {
-                  metadata = String(metadataStr);
-                  free(metadataStr);  // Libera a memória alocada pelo
-                                      // cJSON_Print
+        if (httpResponseCode > 0) {
+#ifdef DBG_MSG_HTTP
+          Serial.print("HTTP Response code (GET): ");
+          Serial.println(httpResponseCode);
+#endif
+
+          String response = http.getString();
+
+#ifdef DBG_MSG_HTTP
+          Serial.print("Resposta completa: ");
+          Serial.println(response);
+#endif
+
+          // Parse do JSON para extrair apenas o metadata
+          cJSON* root = cJSON_Parse(response.c_str());
+          if (root != NULL) {
+            // Verifica se a resposta foi bem-sucedida
+            cJSON* status = cJSON_GetObjectItem(root, "status");
+            if (cJSON_IsTrue(status)) {
+              // Obtém o array de resultados
+              cJSON* result = cJSON_GetObjectItem(root, "result");
+              if (cJSON_IsArray(result) && cJSON_GetArraySize(result) > 0) {
+                // Obtém o primeiro item do array
+                cJSON* item = cJSON_GetArrayItem(result, 0);
+                if (item != NULL) {
+                  // Obtém o objeto metadata
+                  cJSON* metadataObj = cJSON_GetObjectItem(item, "metadata");
+                  if (metadataObj != NULL) {
+                    // Converte o objeto metadata para string
+                    char* metadataStr = cJSON_Print(metadataObj);
+                    if (metadataStr != NULL) {
+                      metadata = String(metadataStr);
+                      free(metadataStr);  // Libera a memória alocada pelo
+                                          // cJSON_Print
+                    }
+                  }
                 }
               }
             }
+
+            cJSON_Delete(root);  // Libera a memória do objeto JSON
           }
+        } else {
+#ifdef DBG_MSG_HTTP
+          Serial.print("Erro na requisição GET. Código: ");
+          Serial.println(httpResponseCode);
+#endif
         }
 
-        cJSON_Delete(root);  // Libera a memória do objeto JSON
+        // Garantir que a conexão seja fechada corretamente
+        http.end();
+      } else {
+        Serial.println("Não foi possível iniciar a requisição HTTP");
       }
     } else {
-#ifdef DBG_MSG_HTTP
-      Serial.print("Erro na requisição GET. Código: ");
-      Serial.println(httpResponseCode);
-#endif
+      Serial.println("WiFi não conectado");
     }
-
-    http.end();
+    xSemaphoreGive(httpMutex);
+    isHttpRequest = false;
   } else {
-#ifdef DBG_MSG_HTTP
-    Serial.println("WiFi não conectado");
-#endif
+    Serial.println("Não foi possível obter o mutex para HTTP.");
   }
 
   return metadata;
