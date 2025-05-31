@@ -93,10 +93,10 @@ void initializeConfigs() {
     calibrateFrontalAngle = cJSON_GetNumberValue(node);
 
     node = cJSON_GetObjectItem(wifiConfigs, "SSID");
-    wifiSSID = String(cJSON_GetStringValue(node));
+    wifiSSID = cJSON_GetStringValue(node);
 
     node = cJSON_GetObjectItem(wifiConfigs, "password");
-    wifiPassword = String(cJSON_GetStringValue(node));
+    wifiPassword = cJSON_GetStringValue(node);
   }
 
   cJSON_Delete(root);

@@ -3,7 +3,9 @@
 
 #include "ESP32Servo.h"
 #include "define_pins.h"
+#include "events_constants.h"
 #include "global_variables.h"
+#include "http_communication.h"
 
 #define DEBUG_SERVO
 

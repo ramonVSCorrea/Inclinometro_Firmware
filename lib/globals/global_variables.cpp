@@ -26,8 +26,13 @@ String wifiSSID = "LIVE TIM_0820_2G";
 String wifiPassword = "a3ehn6rep6";
 bool isWiFiConfigChanged = false;
 
+// HTTP variables
+bool isHttpRequest = false;
+
 // GPS variables
 double latitude = 0.0;
 double longitude = 0.0;
 
 String id = "AAAA";
+
+SemaphoreHandle_t httpMutex = NULL;

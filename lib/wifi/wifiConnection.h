@@ -3,7 +3,7 @@
 
 #include <WiFi.h>
 #include "global_variables.h"
-#include "http_communication.h"
+#include "update_configs.h"
 
 // #define WIFI_SSID "LIVE TIM_0820_2G"
 // #define WIFI_PASSWORD "a3ehn6rep6"

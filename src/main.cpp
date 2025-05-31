@@ -13,6 +13,8 @@
 void setup() {
   Serial.begin(115200);
 
+  httpMutex = xSemaphoreCreateMutex();
+
   initializeFiles();
   initializeAccelerometerMPU6050();
 
@@ -25,7 +27,7 @@ void setup() {
               configMAX_PRIORITIES - 2, NULL);
 
   // Tarefa que verifica condições de sinalização do inclinômetro
-  xTaskCreate(taskSignals, "Tarefa_Sinalizacoes", 2048, NULL,
+  xTaskCreate(taskSignals, "Tarefa_Sinalizacoes", 4096, NULL,
               configMAX_PRIORITIES - 3, NULL);
 
   // Tarefa que controla servo motor
@@ -36,14 +38,13 @@ void setup() {
   xTaskCreate(taskBluetooth, "Tarefa_Bluetooth", 4096, NULL,
               configMAX_PRIORITIES - 1, NULL);
 
-
   // Tarefa de GPS
   xTaskCreate(taskGPS, "Tarefa_GPS", 4096, NULL, configMAX_PRIORITIES - 5,
               NULL);
 
   // Tarefa de verificação de novas configurações
-  xTaskCreate(taskUpdateConfigs, "Tarefa_Update_Configs", 4096, NULL,
-              configMAX_PRIORITIES - 7, NULL);
+  // xTaskCreate(taskUpdateConfigs, "Tarefa_Update_Configs", 5120, NULL,
+  //             configMAX_PRIORITIES - 7, NULL);
 }
 
 void loop() {}

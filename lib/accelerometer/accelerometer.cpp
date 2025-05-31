@@ -48,15 +48,16 @@ void taskAccelerometerMPU6050(void* parameter) {
     lateralAngle = mpu.getAngleY() + (calibrateLateralAngle * (-1));
     frontalAngle = mpu.getAngleX() + (calibrateFrontalAngle * (-1));
 
-    if ((millis() - timer) > 10000) {
+    if ((millis() - timer) > 1000) {
 #ifdef DBG_MSG_MPU6050
       Serial.print("Lateral : ");
       Serial.print(lateralAngle);
       Serial.print("\tFrontal : ");
       Serial.println(frontalAngle);
-
 #endif
-      Serial.println("Enviando dados de inclinação para o servidor: ");
+      while (isHttpRequest) {
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+      }
       sendMessageToServer(buildInclinationDataPayload());
       timer = millis();
     }
