@@ -31,6 +31,12 @@ void taskServoMotor(void* pvParameters) {
       }
       commandRaise = false;
       commandLower = false;
+
+      while (isHttpRequest) {
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+      }
+      sendMessageToServer(buildEventPayload(EVENT_START_TIPPING,
+                                            EVENT_START_TIPPING_DESCRIPTION));
     }
 
     /**
@@ -53,6 +59,12 @@ void taskServoMotor(void* pvParameters) {
       }
       commandRaise = false;
       commandLower = false;
+
+      while (isHttpRequest) {
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+      }
+      sendMessageToServer(
+          buildEventPayload(EVENT_END_TIPPING, EVENT_END_TIPPING_DESCRIPTION));
     }
 
     vTaskDelay(10 / portTICK_PERIOD_MS);
