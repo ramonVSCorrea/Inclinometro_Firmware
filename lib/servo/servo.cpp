@@ -25,7 +25,7 @@ void taskServoMotor(void* pvParameters) {
             break;
 
           servoMotor.write(servoAngle);
-          servoAngle += 0.2;
+          servoAngle += 0.5;
           vTaskDelay(10 / portTICK_PERIOD_MS);
         }
       }
@@ -53,7 +53,7 @@ void taskServoMotor(void* pvParameters) {
             break;
 
           servoMotor.write(servoAngle);
-          servoAngle -= 0.2;
+          servoAngle -= 0.5;
           vTaskDelay(10 / portTICK_PERIOD_MS);
         }
       }
