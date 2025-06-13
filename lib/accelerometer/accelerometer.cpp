@@ -48,7 +48,7 @@ void taskAccelerometerMPU6050(void* parameter) {
     lateralAngle = mpu.getAngleY() + (calibrateLateralAngle * (-1));
     frontalAngle = mpu.getAngleX() + (calibrateFrontalAngle * (-1));
 
-    if ((millis() - timer) > 1000) {
+    if ((millis() - timer) > 10000) {
 #ifdef DBG_MSG_MPU6050
       Serial.print("Lateral : ");
       Serial.print(lateralAngle);
