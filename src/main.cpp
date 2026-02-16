@@ -41,10 +41,6 @@ void setup() {
   // Tarefa de GPS
   xTaskCreate(taskGPS, "Tarefa_GPS", 4096, NULL, configMAX_PRIORITIES - 5,
               NULL);
-
-  // Tarefa de verificação de novas configurações
-  // xTaskCreate(taskUpdateConfigs, "Tarefa_Update_Configs", 5120, NULL,
-  //             configMAX_PRIORITIES - 7, NULL);
 }
 
 void loop() {}

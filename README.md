@@ -1,35 +1,92 @@
 # Firmware Inclinômetro
 
-Projeto que monitora inclinação de um caminhão basculante realizado no ESP32.
+Projeto que monitora inclinação de um caminhão basculante realizado no ESP32 com comunicação WiFi, Bluetooth e GPS.
 
-## Como configurar o Arduino IDE para compilar o programa:
+## Descrição do Projeto
 
-### Instalação do ESP32 na IDE:
+Este firmware implementa um sistema de monitoramento de inclinação para caminhões basculantes usando ESP32. O sistema possui:
 
-Abra o Arduino IDE, clique em "Arquivo" e depois em "Preferências".
+- **Monitoramento de inclinação** usando acelerômetro MPU6050
+- **Comunicação WiFi** para envio de dados para servidor
+- **Comunicação Bluetooth** para configuração via aplicativo
+- **GPS** para localização
+- **Servo motor** para controle mecânico
+- **Sistema de arquivos SPIFFS** para armazenamento de configurações
+- **Sinalização** visual e sonora
 
-Na opção "URLs adicionais para gerenciadores de Placas" entre com o seguinte link e clique em "OK": 
-https://dl.espressif.com/dl/package_esp32_index.json
+## Estrutura do Projeto
 
-Clique em "Ferramentas / Placas / Gerenciador de Placas". Na janela do gerenciador de placas busque por "esp32".
-Irá aparecer a opção "esp32 by Espressif Systems", instale ela.
+O projeto está organizado com as seguintes bibliotecas principais:
 
-Após instalado selecione a placa que você irá trabalhar clicando em "Ferramentas / Placa" e selecionando o modelo "ESP32 Dev Module"
+- `lib/accelerometer/` - Controle do sensor MPU6050
+- `lib/bluetooth/` - Comunicação Bluetooth
+- `lib/wifi/` - Conexão WiFi
+- `lib/gps/` - Módulo GPS
+- `lib/configs_manager/` - Gerenciamento de configurações
+- `lib/http_communication/` - Comunicação HTTP com servidor
+- `lib/servo/` - Controle do servo motor
+- `lib/signaling/` - Sistema de sinalização
 
-Clique em "Ferramentas / Partition Scheme" e selecione a opção "No OTA (2MB APP / 2MB SPIFFS)".
+## Pré-requisitos
 
-### Inclusão de Bibliotecas:
+### Hardware Necessário
 
-Algumas bibliotecas tiveram que ser instaladas para utilizar os componentes necessários. Para instalar, clique em "Rascunho / Incluir Biblioteca / Gerenciar bibliotecas".
-Abrindo uma janela do gerenciador de bibliotecas, instale as seguintes bibliotecas:
+- ESP32 Dev Module
+- Sensor MPU6050 (acelerômetro/giroscópio)
+- Módulo GPS
+- Servo motor
+- Componentes de sinalização (LEDs, buzzer)
 
-- ESP32Servo by Kevin Harrington;
-- MPU6050_light by rfetick;
-- RTClib by Adafruit;
-- ArduinoJson by Benoit Blanchon;
+### Software Necessário
+
+- **PlatformIO** (recomendado) 
+- **Git** para clonar o repositório
+
+## Configuração do Ambiente
+
+### Instalação PlatformIO
+
+1. **Instale o Visual Studio Code**
+2. **Instale a extensão PlatformIO**
+3. **Clone o repositório:**
+   ```bash
+   git clone https://github.com/ICEI-PUC-Minas-EC-TI/pmg-ec-2025-1-p7-iotii-t1-inclinometro.git
+   ```
+4. **Abra o projeto no PlatformIO**
+   - O arquivo `platformio.ini` já contém todas as configurações necessárias
 
 ## Circuito
 
 A imagem a seguir mostra o esquema de ligação dos componentes.
 
-<img src="/assets/Cicuito_inclinometro.png">
+![Circuito](assets/circuito.png)
+
+## Como Executar o Projeto
+
+### Compilação e Upload
+
+```bash
+# Compilar
+pio run
+
+# Upload para o dispositivo
+pio run --target upload
+
+# Monitorar serial
+pio device monitor
+```
+
+### Primeira Inicialização
+
+1. **O sistema inicializará automaticamente:**
+   - SPIFFS será formatado se necessário
+   - Arquivos de configuração serão criados
+   - Todas as tarefas serão iniciadas
+
+2. **Configuração via Bluetooth:**
+   - Conecte-se ao dispositivo via Bluetooth
+   - Use o aplicativo para configurar WiFi e parâmetros de inclinação
+
+3. **Conexão WiFi:**
+   - O sistema tentará conectar automaticamente
+   - Dados serão enviados para o servidor configurado

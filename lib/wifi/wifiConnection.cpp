@@ -23,11 +23,6 @@ void taskWiFiConnection(void* pvParameters) {
     Serial.println("\n✅ Wi-Fi conectado!");
     Serial.print("Endereço IP: ");
     Serial.println(WiFi.localIP());
-
-    // Inicia a fila de requisições HTTP
-    // e configura os callbacks
-    initHttpQueue();
-    setupHttpCallbacks();
   } else {
     Serial.println("\n❌ Falha ao conectar ao Wi-Fi.");
     printWiFiError(WiFi.status());
