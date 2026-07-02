@@ -1,10 +1,12 @@
 #ifndef SIGNALING_H
 #define SIGNALING_H
 
+#include "build_messages.h"
 #include "define_pins.h"
 #include "events_constants.h"
 #include "global_variables.h"
 #include "http_communication.h"
+#include "mqtt_communication.h"
 
 /**
  * @brief Verifica se o inclinômetro está em condição de bloqueio ou alerta

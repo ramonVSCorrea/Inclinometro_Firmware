@@ -2,7 +2,9 @@
 #define ACCERLOMETER_H
 
 #include <Arduino.h>
+#include "build_messages.h"
 #include "http_communication.h"
+#include "mqtt_communication.h"
 
 /**
  * @brief Inicializa o acelerômetro MPU6050

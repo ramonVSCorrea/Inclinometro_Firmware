@@ -7,7 +7,7 @@ Projeto que monitora inclinação de um caminhão basculante realizado no ESP32 
 Este firmware implementa um sistema de monitoramento de inclinação para caminhões basculantes usando ESP32. O sistema possui:
 
 - **Monitoramento de inclinação** usando acelerômetro MPU6050
-- **Comunicação WiFi** para envio de dados para servidor
+- **Comunicação WiFi/MQTT** para envio de dados e eventos
 - **Comunicação Bluetooth** para configuração via aplicativo
 - **GPS** para localização
 - **Servo motor** para controle mecânico
@@ -23,7 +23,8 @@ O projeto está organizado com as seguintes bibliotecas principais:
 - `lib/wifi/` - Conexão WiFi
 - `lib/gps/` - Módulo GPS
 - `lib/configs_manager/` - Gerenciamento de configurações
-- `lib/http_communication/` - Comunicação HTTP com servidor
+- `lib/http_communication/` - Montagem de payloads e consulta de configurações HTTP
+- `lib/mqtt_communication/` - Publicação de dados e eventos via MQTT
 - `lib/servo/` - Controle do servo motor
 - `lib/signaling/` - Sistema de sinalização
 
@@ -89,4 +90,4 @@ pio device monitor
 
 3. **Conexão WiFi:**
    - O sistema tentará conectar automaticamente
-   - Dados serão enviados para o servidor configurado
+   - Dados e eventos serão publicados via MQTT

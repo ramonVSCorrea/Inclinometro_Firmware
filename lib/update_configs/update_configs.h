@@ -6,6 +6,13 @@
 #include "http_communication.h"
 
 /**
+ * @brief Aplica atualizações de configuração a partir de um objeto JSON
+ *
+ * @param root Objeto JSON com angleConfigurations e wifiConfigurations
+ */
+bool applyConfigUpdateJson(cJSON* root);
+
+/**
  * @brief Tarefa para atualizar as configurações do dispositivo
  *
  * @param pvParameters Parâmetros da tarefa (não utilizados)

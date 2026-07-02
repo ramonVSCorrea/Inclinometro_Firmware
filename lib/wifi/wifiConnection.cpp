@@ -1,7 +1,12 @@
 #include "wifiConnection.h"
+#include "mqtt_communication.h"
 
 void taskWiFiConnection(void* pvParameters) {
   Serial.println("\nConectando ao Wi-Fi...");
+  Serial.print("SSID: ");
+  Serial.println(wifiSSID);
+  Serial.print("Senha: ");
+  Serial.println(wifiPassword);
   WiFi.mode(WIFI_STA);    // Modo estação (evita manter um AP ativo)
   WiFi.disconnect(true);  // Desconecta e limpa as configurações prévias
   delay(100);             // Aguardar a limpeza
@@ -23,6 +28,7 @@ void taskWiFiConnection(void* pvParameters) {
     Serial.println("\n✅ Wi-Fi conectado!");
     Serial.print("Endereço IP: ");
     Serial.println(WiFi.localIP());
+    setupMqtt();  // Configura o MQTT após conectar ao Wi-Fi
   } else {
     Serial.println("\n❌ Falha ao conectar ao Wi-Fi.");
     printWiFiError(WiFi.status());
@@ -53,6 +59,9 @@ void taskWiFiConnection(void* pvParameters) {
         Serial.println("\n✅ Reconectado ao Wi-Fi!");
         Serial.print("Novo IP: ");
         Serial.println(WiFi.localIP());
+        if (!isMqttConnected) {
+          setupMqtt();
+        }
       } else {
         Serial.println(
             "\n❌ Rede indisponível. Tentando novamente em 10 segundos...");
@@ -60,7 +69,7 @@ void taskWiFiConnection(void* pvParameters) {
       }
     } else {
       if ((millis() - timer) > 30000) {
-        updateConfigs();  // Verifica se há novas configurações
+        // updateConfigs();  // Verifica se há novas configurações
         timer = millis();
       }
     }

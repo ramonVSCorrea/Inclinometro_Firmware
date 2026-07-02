@@ -35,8 +35,9 @@ void taskServoMotor(void* pvParameters) {
       while (isHttpRequest) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
       }
-      sendMessageToServer(buildEventPayload(EVENT_START_TIPPING,
-                                            EVENT_START_TIPPING_DESCRIPTION));
+
+      publishMessageToMqtt(MQTT_EVENT_TOPIC,
+                           buildEventMessage(EVT_START_TIPPING));
     }
 
     /**
@@ -63,8 +64,9 @@ void taskServoMotor(void* pvParameters) {
       while (isHttpRequest) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
       }
-      sendMessageToServer(
-          buildEventPayload(EVENT_END_TIPPING, EVENT_END_TIPPING_DESCRIPTION));
+
+      publishMessageToMqtt(MQTT_EVENT_TOPIC,
+                           buildEventMessage(EVT_END_TIPPING));
     }
 
     vTaskDelay(10 / portTICK_PERIOD_MS);

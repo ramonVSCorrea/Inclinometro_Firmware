@@ -25,6 +25,7 @@ bool isWiFiConnected = false;
 String wifiSSID = "LIVE TIM_0820_2G";
 String wifiPassword = "a3ehn6rep6";
 bool isWiFiConfigChanged = false;
+bool isMqttConnected = false;
 
 // HTTP variables
 bool isHttpRequest = false;

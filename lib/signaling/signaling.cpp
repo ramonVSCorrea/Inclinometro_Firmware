@@ -14,8 +14,7 @@ void checkCurrentCondition() {
       while (isHttpRequest) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
       }
-      sendMessageToServer(
-          buildEventPayload(EVENT_BLOCK, EVENT_BLOCK_DESCRIPTION));
+      publishMessageToMqtt(MQTT_EVENT_TOPIC, buildEventMessage(EVT_BLOCK));
       isEventBlocked = true;
     }
   } else {

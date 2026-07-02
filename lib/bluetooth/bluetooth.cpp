@@ -4,7 +4,7 @@ bool evtConnected = false;
 BluetoothSerial SerialBT;
 
 void taskBluetooth(void* pvParameters) {
-  SerialBT.begin("IncliMax - 1234");
+  SerialBT.begin("IncliMax - AAAA");
   pinMode(YELLOW_LED_PIN, OUTPUT);
 
   while (1) {
@@ -18,9 +18,9 @@ void taskBluetooth(void* pvParameters) {
         while (isHttpRequest) {
           vTaskDelay(100 / portTICK_PERIOD_MS);
         }
-        sendMessageToServer(buildEventPayload(
-            EVENT_SENSOR_CONNECTED, EVENT_SENSOR_CONNECTED_DESCRIPTION));
-        evtConnected = true;
+
+        publishMessageToMqtt(MQTT_EVENT_TOPIC,
+                             buildEventMessage(EVT_SENSOR_CONNECTED));
       }
       readBluetoothData();
     } else {
@@ -149,9 +149,9 @@ void readBluetoothData() {
           while (isHttpRequest) {
             vTaskDelay(100 / portTICK_PERIOD_MS);
           }
-          sendMessageToServer(
-              buildEventPayload(EVENT_BLOCK_VALUE_CHANGED,
-                                EVENT_BLOCK_VALUE_CHANGED_DESCRIPTION));
+
+          publishMessageToMqtt(MQTT_EVENT_TOPIC,
+                               buildEventMessage(EVT_BLOCK_VALUE_CHANGED));
         }
 
         /*
@@ -201,8 +201,8 @@ void readBluetoothData() {
             while (isHttpRequest) {
               vTaskDelay(100 / portTICK_PERIOD_MS);
             }
-            sendMessageToServer(buildEventPayload(
-                EVENT_SENSOR_CALIBRATED, EVENT_SENSOR_CALIBRATED_DESCRIPTION));
+            publishMessageToMqtt(MQTT_EVENT_TOPIC,
+                                 buildEventMessage(EVT_SENSOR_CALIBRATED));
           } else if (cJSON_GetNumberValue(configCalib) == 0) {
             calibrateLateralAngle = 0;
             calibrateFrontalAngle = 0;
@@ -210,8 +210,8 @@ void readBluetoothData() {
             while (isHttpRequest) {
               vTaskDelay(100 / portTICK_PERIOD_MS);
             }
-            sendMessageToServer(buildEventPayload(
-                EVENT_SENSOR_CLEARED, EVENT_SENSOR_CLEARED_DESCRIPTION));
+            publishMessageToMqtt(MQTT_EVENT_TOPIC,
+                                 buildEventMessage(EVT_SENSOR_CLEARED));
           }
         }
 

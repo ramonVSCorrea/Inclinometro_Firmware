@@ -1,5 +1,93 @@
 #include "update_configs.h"
 
+bool applyConfigUpdateJson(cJSON* root) {
+  if (root == NULL) {
+    return false;
+  }
+
+  bool configsChanged = false;
+  bool wifiChanged = false;
+
+  cJSON* angleConfigurations = cJSON_GetObjectItem(root, "angleConfigurations");
+  if (cJSON_IsObject(angleConfigurations)) {
+    cJSON* blockLateralAngleJson =
+        cJSON_GetObjectItem(angleConfigurations, "blockLateralAngle");
+    if (cJSON_IsNumber(blockLateralAngleJson) &&
+        blockLateralAngle != blockLateralAngleJson->valuedouble) {
+      blockLateralAngle = blockLateralAngleJson->valuedouble;
+      configsChanged = true;
+      Serial.print("Novo ângulo lateral de bloqueio: ");
+      Serial.println(blockLateralAngle);
+    }
+
+    cJSON* blockFrontalAngleJson =
+        cJSON_GetObjectItem(angleConfigurations, "blockFrontalAngle");
+    if (cJSON_IsNumber(blockFrontalAngleJson) &&
+        blockFrontalAngle != blockFrontalAngleJson->valuedouble) {
+      blockFrontalAngle = blockFrontalAngleJson->valuedouble;
+      configsChanged = true;
+      Serial.print("Novo ângulo frontal de bloqueio: ");
+      Serial.println(blockFrontalAngle);
+    }
+
+    cJSON* calibrateLateralAngleJson =
+        cJSON_GetObjectItem(angleConfigurations, "calibrateLateralAngle");
+    if (cJSON_IsNumber(calibrateLateralAngleJson) &&
+        calibrateLateralAngle != calibrateLateralAngleJson->valuedouble) {
+      calibrateLateralAngle = calibrateLateralAngleJson->valuedouble;
+      configsChanged = true;
+      Serial.print("Novo ângulo lateral de calibração: ");
+      Serial.println(calibrateLateralAngle);
+    }
+
+    cJSON* calibrateFrontalAngleJson =
+        cJSON_GetObjectItem(angleConfigurations, "calibrateFrontalAngle");
+    if (cJSON_IsNumber(calibrateFrontalAngleJson) &&
+        calibrateFrontalAngle != calibrateFrontalAngleJson->valuedouble) {
+      calibrateFrontalAngle = calibrateFrontalAngleJson->valuedouble;
+      configsChanged = true;
+      Serial.print("Novo ângulo frontal de calibração: ");
+      Serial.println(calibrateFrontalAngle);
+    }
+  }
+
+  cJSON* wifiConfigurations = cJSON_GetObjectItem(root, "wifiConfigurations");
+  if (cJSON_IsObject(wifiConfigurations)) {
+    cJSON* ssidJson = cJSON_GetObjectItem(wifiConfigurations, "ssid");
+    if (cJSON_IsString(ssidJson) && wifiSSID != String(ssidJson->valuestring)) {
+      wifiSSID = ssidJson->valuestring;
+      wifiChanged = true;
+      Serial.print("Novo SSID: ");
+      Serial.println(wifiSSID);
+    }
+
+    cJSON* passwordJson = cJSON_GetObjectItem(wifiConfigurations, "password");
+    if (cJSON_IsString(passwordJson) &&
+        wifiPassword != String(passwordJson->valuestring)) {
+      wifiPassword = passwordJson->valuestring;
+      wifiChanged = true;
+      Serial.print("Nova senha WiFi configurada");
+    }
+  }
+
+  if (configsChanged) {
+    Serial.println("Atualizando configurações...");
+    setBlockConfigs();
+  }
+
+  if (wifiChanged) {
+    Serial.println("Atualizando configurações WiFi...");
+    setWiFiConfigs();
+  }
+
+  if (configsChanged || wifiChanged) {
+    sendMessageToServer(buildDeviceConfigurationsPayload());
+    Serial.println("Configurações atualizadas e enviadas ao servidor.");
+  }
+
+  return configsChanged || wifiChanged;
+}
+
 void updateConfigs() {
   Serial.println("Iniciando atualização de configurações...");
 
@@ -15,76 +103,8 @@ void updateConfigs() {
     cJSON* metadata = cJSON_Parse(metadataStr.c_str());
 
     if (metadata != NULL) {
-      bool configsChanged = false;
-      bool wifiChanged = false;
+      applyConfigUpdateJson(metadata);
 
-      // Verifica configurações de inclinação
-      cJSON* configurations = cJSON_GetObjectItem(metadata, "configurations");
-      if (cJSON_IsObject(configurations)) {
-        // Verifica ângulo lateral de bloqueio
-        cJSON* blockLateralAngleJson =
-            cJSON_GetObjectItem(configurations, "blockLateralAngle");
-        if (cJSON_IsNumber(blockLateralAngleJson) &&
-            blockLateralAngle != blockLateralAngleJson->valuedouble) {
-          blockLateralAngle = blockLateralAngleJson->valuedouble;
-          configsChanged = true;
-          Serial.print("Novo ângulo lateral de bloqueio: ");
-          Serial.println(blockLateralAngle);
-        }
-
-        // Verifica ângulo frontal de bloqueio
-        cJSON* blockFrontalAngleJson =
-            cJSON_GetObjectItem(configurations, "blockFrontalAngle");
-        if (cJSON_IsNumber(blockFrontalAngleJson) &&
-            blockFrontalAngle != blockFrontalAngleJson->valuedouble) {
-          blockFrontalAngle = blockFrontalAngleJson->valuedouble;
-          configsChanged = true;
-          Serial.print("Novo ângulo frontal de bloqueio: ");
-          Serial.println(blockFrontalAngle);
-        }
-
-        // Verifica configurações de WiFi
-        cJSON* wifiConfigs = cJSON_GetObjectItem(metadata, "wifiConfigs");
-        if (cJSON_IsObject(wifiConfigs)) {
-          // Verifica SSID
-          cJSON* ssidJson = cJSON_GetObjectItem(wifiConfigs, "SSID");
-          if (cJSON_IsString(ssidJson) &&
-              wifiSSID != String(ssidJson->valuestring)) {
-            wifiSSID = ssidJson->valuestring;
-            wifiChanged = true;
-            Serial.print("Novo SSID: ");
-            Serial.println(wifiSSID);
-          }
-
-          // Verifica senha
-          cJSON* passwordJson = cJSON_GetObjectItem(wifiConfigs, "password");
-          if (cJSON_IsString(passwordJson) &&
-              wifiPassword != String(passwordJson->valuestring)) {
-            wifiPassword = passwordJson->valuestring;
-            wifiChanged = true;
-            Serial.print("Nova senha WiFi configurada");
-          }
-        }
-
-        // Salva as configurações se houve mudanças
-        if (configsChanged) {
-          Serial.println("Atualizando configurações...");
-          setBlockConfigs();  // Atualiza os valores de bloqueio
-        }
-
-        if (wifiChanged) {
-          Serial.println("Atualizando configurações WiFi...");
-          setWiFiConfigs();  // Atualiza as configurações WiFi
-        }
-
-        // Se houve mudanças, notifica o servidor das configurações
-        // atualizadas
-        if (configsChanged || wifiChanged) {
-          sendMessageToServer(buildDeviceConfigurationsPayload());
-          Serial.println("Configurações atualizadas e enviadas ao servidor.");
-        }
-      }
-      
       cJSON_Delete(metadata);
     } else {
       Serial.println("Erro ao analisar JSON de configuração");

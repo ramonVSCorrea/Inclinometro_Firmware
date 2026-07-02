@@ -22,8 +22,9 @@ void initializeAccelerometerMPU6050() {
       mpu.setAddress(0x69);
     } else {
       Serial.println("MPU6050 não encontrado");
-      while (1)
-        ;  // Pare o programa se o MPU6050 não for encontrado
+      Serial.println("Reiniciando o ESP...");
+      delay(1000);
+      ESP.restart();
     }
   }
 
@@ -35,7 +36,7 @@ void initializeAccelerometerMPU6050() {
 
   Serial.println("Offsets calculados!\n");
 
-  mpu.upsideDownMounting = true;
+  mpu.upsideDownMounting = false;
 }
 
 void taskAccelerometerMPU6050(void* parameter) {
@@ -55,10 +56,9 @@ void taskAccelerometerMPU6050(void* parameter) {
       Serial.print("\tFrontal : ");
       Serial.println(frontalAngle);
 #endif
-      while (isHttpRequest) {
-        vTaskDelay(100 / portTICK_PERIOD_MS);
-      }
-      sendMessageToServer(buildInclinationDataPayload());
+
+      publishMessageToMqtt(MQTT_DATA_TOPIC, buildInclinationDataMessage());
+
       timer = millis();
     }
 

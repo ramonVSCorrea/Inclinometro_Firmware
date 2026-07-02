@@ -120,6 +120,12 @@ void setBlockConfigs() {
 
       node = cJSON_GetObjectItem(configs, "blockFrontalAngle");
       cJSON_SetNumberValue(node, blockFrontalAngle);
+
+      node = cJSON_GetObjectItem(configs, "calibrateLateralAngle");
+      cJSON_SetNumberValue(node, calibrateLateralAngle);
+
+      node = cJSON_GetObjectItem(configs, "calibrateFrontalAngle");
+      cJSON_SetNumberValue(node, calibrateFrontalAngle);
     }
   }
 

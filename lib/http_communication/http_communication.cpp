@@ -59,21 +59,15 @@ String buildDeviceConfigurationsPayload() {
          "\"variable\":\"deviceConfigurations\","
          "\"value\":\"deviceConfigurations\","
          "\"metadata\":{"
-         "\"configurations\":{"
+         "\"angleConfigurations\":{"
          "\"blockLateralAngle\":" +
          String(blockLateralAngle) +
          ","
          "\"blockFrontalAngle\":" +
          String(blockFrontalAngle) +
-         ","
-         "\"calibrateLateralAngle\":" +
-         String(calibrateLateralAngle) +
-         ","
-         "\"calibrateFrontalAngle\":" +
-         String(calibrateFrontalAngle) +
          "},"
-         "\"wifiConfigs\":{"
-         "\"SSID\":\"" +
+         "\"wifiConfigurations\":{"
+         "\"ssid\":\"" +
          wifiSSID +
          "\""
          "}"
