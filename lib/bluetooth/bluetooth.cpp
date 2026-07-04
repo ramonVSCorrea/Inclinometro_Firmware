@@ -10,11 +10,19 @@ NimBLECharacteristic* responseCharacteristic = nullptr;
 NimBLECharacteristic* readingsCharacteristic = nullptr;
 NimBLECharacteristic* statusCharacteristic = nullptr;
 char eventPayload[EVENT_MESSAGE_BUFFER_SIZE];
+char configPayload[DEVICE_CONFIG_MESSAGE_BUFFER_SIZE];
 
 void publishBluetoothEvent(const char* event) {
   if (isMqttReady() &&
       buildEventMessage(event, eventPayload, sizeof(eventPayload))) {
     publishMessageToMqtt(MQTT_EVENT_TOPIC, eventPayload);
+  }
+}
+
+void publishBluetoothConfig() {
+  if (isMqttReady() &&
+      buildDeviceConfigurationsMessage(configPayload, sizeof(configPayload))) {
+    publishMessageToMqtt(MQTT_SENSOR_CONFIGS, configPayload);
   }
 }
 
@@ -287,6 +295,7 @@ void processBluetoothCommand(const char* command) {
     calibrateLateralAngle += lateralAngle;
     calibrateFrontalAngle += frontalAngle;
     setCalibrationConfigs();
+    publishBluetoothConfig();
     publishBluetoothEvent(EVT_SENSOR_CALIBRATED);
     sendAck("CALIBRATE");
     sendBluetoothMessage("EVENT:type=SENSOR_CALIBRATED");
@@ -297,6 +306,7 @@ void processBluetoothCommand(const char* command) {
     calibrateLateralAngle = 0;
     calibrateFrontalAngle = 0;
     setCalibrationConfigs();
+    publishBluetoothConfig();
     publishBluetoothEvent(EVT_SENSOR_CLEARED);
     sendAck("CLEAR_CALIB");
     sendBluetoothMessage("EVENT:type=SENSOR_CLEARED");
@@ -317,6 +327,7 @@ void processBluetoothCommand(const char* command) {
     blockLateralAngle = newBlockLateralAngle;
     blockFrontalAngle = newBlockFrontalAngle;
     setBlockConfigs();
+    publishBluetoothConfig();
     publishBluetoothEvent(EVT_BLOCK_VALUE_CHANGED);
     sendAck("SET_BLOCK");
     sendBluetoothMessage("EVENT:type=BLOCK_VALUE_CHANGED");
@@ -337,6 +348,7 @@ void processBluetoothCommand(const char* command) {
     snprintf(wifiSSID, sizeof(wifiSSID), "%s", ssid);
     snprintf(wifiPassword, sizeof(wifiPassword), "%s", password);
     setWiFiConfigs();
+    publishBluetoothConfig();
     sendAck("SET_WIFI");
     return;
   }
