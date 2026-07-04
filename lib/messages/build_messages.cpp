@@ -1,73 +1,40 @@
 #include "build_messages.h"
 
-String buildEventMessage(String event) {
-  return "{"
-         "\"sensorId\":\"" +
-         id +
-         "\","
-         "\"event\":\"" +
-         event +
-         "\","
-         "\"lateralAngle\":\"" +
-         String(lateralAngle) +
-         "\","
-         "\"frontalAngle\":\"" +
-         String(frontalAngle) +
-         "\","
-         "\"latitude\":\"" +
-         String(latitude, 6) +
-         "\","
-         "\"longitude\":\"" +
-         String(longitude, 6) +
-         "\""
-         "}";
+bool buildEventMessage(const char* event, char* buffer, size_t bufferSize) {
+  int written = snprintf(buffer, bufferSize,
+                         "{\"sensorId\":\"%s\",\"event\":\"%s\","
+                         "\"lateralAngle\":\"%.2f\","
+                         "\"frontalAngle\":\"%.2f\","
+                         "\"latitude\":\"%.6f\",\"longitude\":\"%.6f\"}",
+                         id, event, lateralAngle, frontalAngle,
+                         latitude, longitude);
+
+  return written > 0 && (size_t)written < bufferSize;
 }
 
-String buildInclinationDataMessage() {
-  return "{"
-         "\"sensorId\":\"" +
-         id +
-         "\","
-         "\"lateralAngle\":\"" +
-         String(lateralAngle) +
-         "\","
-         "\"frontalAngle\":\"" +
-         String(frontalAngle) +
-         "\","
-         "\"latitude\":\"" +
-         String(latitude, 6) +
-         "\","
-         "\"longitude\":\"" +
-         String(longitude, 6) +
-         "\""
-         "}";
+bool buildInclinationDataMessage(char* buffer, size_t bufferSize) {
+  int written = snprintf(buffer, bufferSize,
+                         "{\"sensorId\":\"%s\",\"lateralAngle\":\"%.2f\","
+                         "\"frontalAngle\":\"%.2f\",\"latitude\":\"%.6f\","
+                         "\"longitude\":\"%.6f\"}",
+                         id, lateralAngle, frontalAngle, latitude,
+                         longitude);
+
+  return written > 0 && (size_t)written < bufferSize;
 }
 
-String buildDeviceConfigurationsMessage() {
-  return "{"
-         "\"sensorId\":\"" +
-         id +
-         "\","
-         "\"angleConfigurations\":{"
-         "\"blockLateralAngle\":" +
-         String(blockLateralAngle) +
-         ","
-         "\"blockFrontalAngle\":" +
-         String(blockFrontalAngle) +
-         ","
-         "\"calibrateLateralAngle\":" +
-         String(calibrateLateralAngle) +
-         ","
-         "\"calibrateFrontalAngle\":" +
-         String(calibrateFrontalAngle) +
-         "},"
-         "\"wifiConfigurations\":{"
-         "\"ssid\":\"" +
-         wifiSSID +
-         "\","
-         "\"password\":\"" +
-         wifiPassword +
-         "\""
-         "}"
-         "}";
+bool buildDeviceConfigurationsMessage(char* buffer, size_t bufferSize) {
+  int written = snprintf(buffer, bufferSize,
+                         "{\"sensorId\":\"%s\",\"angleConfigurations\":{"
+                         "\"blockLateralAngle\":%.2f,"
+                         "\"blockFrontalAngle\":%.2f,"
+                         "\"calibrateLateralAngle\":%.2f,"
+                         "\"calibrateFrontalAngle\":%.2f},"
+                         "\"wifiConfigurations\":{\"ssid\":\"%s\","
+                         "\"password\":\"%s\"}}",
+                         id, blockLateralAngle, blockFrontalAngle,
+                         calibrateLateralAngle, calibrateFrontalAngle,
+                         wifiSSID, wifiPassword);
+
+  return written > 0 && (size_t)written < bufferSize;
 }

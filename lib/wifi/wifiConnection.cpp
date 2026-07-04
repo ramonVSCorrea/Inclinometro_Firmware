@@ -1,12 +1,16 @@
 #include "wifiConnection.h"
+#include "debug_log.h"
 #include "mqtt_communication.h"
+#include "stack_debug.h"
 
 void taskWiFiConnection(void* pvParameters) {
-  Serial.println("\nConectando ao Wi-Fi...");
-  Serial.print("SSID: ");
-  Serial.println(wifiSSID);
-  Serial.print("Senha: ");
-  Serial.println(wifiPassword);
+  unsigned long stackLogTimer = 0;
+
+  DBG_PRINTLN("\nConectando ao Wi-Fi...");
+  DBG_PRINT("SSID: ");
+  DBG_PRINTLN(wifiSSID);
+  DBG_PRINT("Senha: ");
+  DBG_PRINTLN(wifiPassword);
   WiFi.mode(WIFI_STA);    // Modo estação (evita manter um AP ativo)
   WiFi.disconnect(true);  // Desconecta e limpa as configurações prévias
   delay(100);             // Aguardar a limpeza
@@ -14,33 +18,35 @@ void taskWiFiConnection(void* pvParameters) {
   WiFi.begin(wifiSSID, wifiPassword);
 
   int timeoutWifiConnection = 30;
-  unsigned long timer = 0;
 
   // Conectando pela primeira vez
   while (WiFi.status() != WL_CONNECTED && timeoutWifiConnection > 0) {
-    Serial.print(".");
+    DBG_PRINT(".");
     vTaskDelay(pdMS_TO_TICKS(1000));
     timeoutWifiConnection--;
   }
 
   if (WiFi.status() == WL_CONNECTED) {
     isWiFiConnected = true;
-    Serial.println("\n✅ Wi-Fi conectado!");
-    Serial.print("Endereço IP: ");
-    Serial.println(WiFi.localIP());
+    DBG_PRINTLN("\n✅ Wi-Fi conectado!");
+    DBG_PRINT("Endereço IP: ");
+    DBG_PRINTLN(WiFi.localIP());
     setupMqtt();  // Configura o MQTT após conectar ao Wi-Fi
   } else {
-    Serial.println("\n❌ Falha ao conectar ao Wi-Fi.");
+    DBG_PRINTLN("\n❌ Falha ao conectar ao Wi-Fi.");
     printWiFiError(WiFi.status());
     isWiFiConnected = false;
   }
 
   while (1) {
+    logTaskStackHighWaterMark("Tarefa_WiFi", &stackLogTimer);
+
     // Verifica se as credenciais foram alteradas
     if (isWiFiConfigChanged || WiFi.status() != WL_CONNECTED) {
-      Serial.println("\nReconectando ao Wi-Fi...");
+      DBG_PRINTLN("\nReconectando ao Wi-Fi...");
       isWiFiConfigChanged = false;
       isWiFiConnected = false;
+      isMqttConnected = false;
 
       // Desconecta e tenta novamente
       WiFi.disconnect(true);  // Limpa a conexão anterior
@@ -49,29 +55,24 @@ void taskWiFiConnection(void* pvParameters) {
 
       int attempts = 0;
       while (WiFi.status() != WL_CONNECTED && attempts < 15) {
-        Serial.print(".");
+        DBG_PRINT(".");
         vTaskDelay(pdMS_TO_TICKS(1000));
         attempts++;
       }
 
       if (WiFi.status() == WL_CONNECTED) {
         isWiFiConnected = true;
-        Serial.println("\n✅ Reconectado ao Wi-Fi!");
-        Serial.print("Novo IP: ");
-        Serial.println(WiFi.localIP());
-        if (!isMqttConnected) {
-          setupMqtt();
-        }
+        DBG_PRINTLN("\n✅ Reconectado ao Wi-Fi!");
+        DBG_PRINT("Novo IP: ");
+        DBG_PRINTLN(WiFi.localIP());
+        setupMqtt();
       } else {
-        Serial.println(
+        DBG_PRINTLN(
             "\n❌ Rede indisponível. Tentando novamente em 10 segundos...");
         vTaskDelay(pdMS_TO_TICKS(10000));  // Espera antes de tentar novamente
       }
     } else {
-      if ((millis() - timer) > 30000) {
-        // updateConfigs();  // Verifica se há novas configurações
-        timer = millis();
-      }
+      maintainMqttConnection();
     }
 
     vTaskDelay(pdMS_TO_TICKS(5000));  // Verifica a cada 5 segundos
@@ -79,22 +80,22 @@ void taskWiFiConnection(void* pvParameters) {
 }
 
 void printWiFiError(int status) {
-  Serial.print("⚠️ Erro de conexão Wi-Fi: ");
+  DBG_PRINT("⚠️ Erro de conexão Wi-Fi: ");
   switch (status) {
     case WL_NO_SSID_AVAIL:
-      Serial.println("Rede Wi-Fi não encontrada! Verifique o SSID.");
+      DBG_PRINTLN("Rede Wi-Fi não encontrada! Verifique o SSID.");
       break;
     case WL_CONNECT_FAILED:
-      Serial.println("Falha na autenticação! Verifique a senha.");
+      DBG_PRINTLN("Falha na autenticação! Verifique a senha.");
       break;
     case WL_CONNECTION_LOST:
-      Serial.println("Conexão perdida! Verifique o sinal.");
+      DBG_PRINTLN("Conexão perdida! Verifique o sinal.");
       break;
     case WL_DISCONNECTED:
-      Serial.println("ESP32 não está conectado a nenhuma rede.");
+      DBG_PRINTLN("ESP32 não está conectado a nenhuma rede.");
       break;
     default:
-      Serial.println("Motivo desconhecido.");
+      DBG_PRINTLN("Motivo desconhecido.");
       break;
   }
 }

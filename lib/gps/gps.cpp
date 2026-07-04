@@ -1,17 +1,23 @@
 #include "gps.h"
+#include "debug_log.h"
+#include "stack_debug.h"
 
 // #define DBG_GPS
 
 TinyGPSPlus gps;
 
 void taskGPS(void* pvParameters) {
-  Serial.println("Iniciando tarefa GPS");
+  unsigned long stackLogTimer = 0;
+
+  DBG_PRINTLN("Iniciando tarefa GPS");
   Serial2.begin(GPS_BAUDRATE, SERIAL_8N1, GPS_RX_PIN, GPS_TX_PIN);
 
   while (1) {
+    logTaskStackHighWaterMark("Tarefa_GPS", &stackLogTimer);
+
 #ifdef DBG_GPS
-    Serial.print("Lendo GPS:");
-    Serial.println(Serial2.available());
+    DBG_PRINT("Lendo GPS:");
+    DBG_PRINTLN(Serial2.available());
 #endif
 
     while (Serial2.available() > 0) {
@@ -25,7 +31,7 @@ void taskGPS(void* pvParameters) {
     }
 #ifdef DBG_GPS
     else {
-      Serial.println("Aguardando fix do GPS...");
+      DBG_PRINTLN("Aguardando fix do GPS...");
     }
 #endif
 

@@ -4,7 +4,6 @@
 #include "configs_manager.h"
 #include "global_variables.h"
 #include "gps.h"
-#include "http_communication.h"
 #include "mqtt_communication.h"
 #include "servo.h"
 #include "signaling.h"
@@ -13,8 +12,6 @@
 
 void setup() {
   Serial.begin(115200);
-
-  httpMutex = xSemaphoreCreateMutex();
 
   initializeFiles();
   initializeAccelerometerMPU6050();

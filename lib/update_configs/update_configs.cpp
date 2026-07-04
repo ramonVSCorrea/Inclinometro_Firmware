@@ -1,4 +1,5 @@
 #include "update_configs.h"
+#include "debug_log.h"
 
 bool applyConfigUpdateJson(cJSON* root) {
   if (root == NULL) {
@@ -16,8 +17,8 @@ bool applyConfigUpdateJson(cJSON* root) {
         blockLateralAngle != blockLateralAngleJson->valuedouble) {
       blockLateralAngle = blockLateralAngleJson->valuedouble;
       configsChanged = true;
-      Serial.print("Novo ângulo lateral de bloqueio: ");
-      Serial.println(blockLateralAngle);
+      DBG_PRINT("Novo ângulo lateral de bloqueio: ");
+      DBG_PRINTLN(blockLateralAngle);
     }
 
     cJSON* blockFrontalAngleJson =
@@ -26,8 +27,8 @@ bool applyConfigUpdateJson(cJSON* root) {
         blockFrontalAngle != blockFrontalAngleJson->valuedouble) {
       blockFrontalAngle = blockFrontalAngleJson->valuedouble;
       configsChanged = true;
-      Serial.print("Novo ângulo frontal de bloqueio: ");
-      Serial.println(blockFrontalAngle);
+      DBG_PRINT("Novo ângulo frontal de bloqueio: ");
+      DBG_PRINTLN(blockFrontalAngle);
     }
 
     cJSON* calibrateLateralAngleJson =
@@ -36,8 +37,8 @@ bool applyConfigUpdateJson(cJSON* root) {
         calibrateLateralAngle != calibrateLateralAngleJson->valuedouble) {
       calibrateLateralAngle = calibrateLateralAngleJson->valuedouble;
       configsChanged = true;
-      Serial.print("Novo ângulo lateral de calibração: ");
-      Serial.println(calibrateLateralAngle);
+      DBG_PRINT("Novo ângulo lateral de calibração: ");
+      DBG_PRINTLN(calibrateLateralAngle);
     }
 
     cJSON* calibrateFrontalAngleJson =
@@ -46,68 +47,45 @@ bool applyConfigUpdateJson(cJSON* root) {
         calibrateFrontalAngle != calibrateFrontalAngleJson->valuedouble) {
       calibrateFrontalAngle = calibrateFrontalAngleJson->valuedouble;
       configsChanged = true;
-      Serial.print("Novo ângulo frontal de calibração: ");
-      Serial.println(calibrateFrontalAngle);
+      DBG_PRINT("Novo ângulo frontal de calibração: ");
+      DBG_PRINTLN(calibrateFrontalAngle);
     }
   }
 
   cJSON* wifiConfigurations = cJSON_GetObjectItem(root, "wifiConfigurations");
   if (cJSON_IsObject(wifiConfigurations)) {
     cJSON* ssidJson = cJSON_GetObjectItem(wifiConfigurations, "ssid");
-    if (cJSON_IsString(ssidJson) && wifiSSID != String(ssidJson->valuestring)) {
-      wifiSSID = ssidJson->valuestring;
+    if (cJSON_IsString(ssidJson) &&
+        strcmp(wifiSSID, ssidJson->valuestring) != 0) {
+      snprintf(wifiSSID, sizeof(wifiSSID), "%s", ssidJson->valuestring);
       wifiChanged = true;
-      Serial.print("Novo SSID: ");
-      Serial.println(wifiSSID);
+      DBG_PRINT("Novo SSID: ");
+      DBG_PRINTLN(wifiSSID);
     }
 
     cJSON* passwordJson = cJSON_GetObjectItem(wifiConfigurations, "password");
     if (cJSON_IsString(passwordJson) &&
-        wifiPassword != String(passwordJson->valuestring)) {
-      wifiPassword = passwordJson->valuestring;
+        strcmp(wifiPassword, passwordJson->valuestring) != 0) {
+      snprintf(wifiPassword, sizeof(wifiPassword), "%s",
+               passwordJson->valuestring);
       wifiChanged = true;
-      Serial.print("Nova senha WiFi configurada");
+      DBG_PRINT("Nova senha WiFi configurada");
     }
   }
 
   if (configsChanged) {
-    Serial.println("Atualizando configurações...");
+    DBG_PRINTLN("Atualizando configurações...");
     setBlockConfigs();
   }
 
   if (wifiChanged) {
-    Serial.println("Atualizando configurações WiFi...");
+    DBG_PRINTLN("Atualizando configurações WiFi...");
     setWiFiConfigs();
   }
 
   if (configsChanged || wifiChanged) {
-    sendMessageToServer(buildDeviceConfigurationsPayload());
-    Serial.println("Configurações atualizadas e enviadas ao servidor.");
+    DBG_PRINTLN("Configurações atualizadas via MQTT.");
   }
 
   return configsChanged || wifiChanged;
-}
-
-void updateConfigs() {
-  Serial.println("Iniciando atualização de configurações...");
-
-  // Envia o payload de configurações para o servidor
-  sendMessageToServer(buildDeviceConfigurationsPayload());
-  Serial.println("Payload de configurações enviado ao servidor.");
-
-  // Busca configurações atualizadas do servidor
-  String metadataStr = retrieveLastConfigUpdate();
-
-  if (metadataStr != "{}") {
-    // Parse do JSON de resposta
-    cJSON* metadata = cJSON_Parse(metadataStr.c_str());
-
-    if (metadata != NULL) {
-      applyConfigUpdateJson(metadata);
-
-      cJSON_Delete(metadata);
-    } else {
-      Serial.println("Erro ao analisar JSON de configuração");
-    }
-  }
 }

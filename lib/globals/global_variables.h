@@ -21,6 +21,10 @@
 #define EVT_WIFI_CONNECTED "WIFI_CONNECTED"
 #define EVT_WIFI_DISCONNECTED "WIFI_DISCONNECTED"
 
+#define WIFI_SSID_MAX_LENGTH 64
+#define WIFI_PASSWORD_MAX_LENGTH 64
+#define SENSOR_ID_MAX_LENGTH 16
+
 // Angle variables
 extern float lateralAngle;
 extern float frontalAngle;
@@ -43,20 +47,15 @@ extern bool commandLower;
 
 // WiFi variables
 extern bool isWiFiConnected;
-extern String wifiSSID;
-extern String wifiPassword;
+extern char wifiSSID[WIFI_SSID_MAX_LENGTH];
+extern char wifiPassword[WIFI_PASSWORD_MAX_LENGTH];
 extern bool isWiFiConfigChanged;
 extern bool isMqttConnected;
-
-// HTTP variables
-extern bool isHttpRequest;
 
 // GPS variables
 extern double latitude;
 extern double longitude;
 
-extern String id;
-
-extern SemaphoreHandle_t httpMutex;
+extern char id[SENSOR_ID_MAX_LENGTH];
 
 #endif  // GLOBAL_VARIABLES_H

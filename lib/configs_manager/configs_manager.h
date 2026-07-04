@@ -1,7 +1,6 @@
 #ifndef CONFIGS_MANAGER_H
 #define CONFIGS_MANAGER_H
 
-#include <ArduinoJson.h>
 #include <FS.h>
 #include <SPIFFS.h>
 #include <cJSON.h>

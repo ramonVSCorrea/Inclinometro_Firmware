@@ -57,20 +57,14 @@ void onMqttPublish(uint16_t packetId);
 void setupMqtt();
 
 /**
- * @brief Publica um payload JSON no MQTT usando o campo "variable" para
- *        montar o tópico.
- *
- * @param payload Payload JSON a ser publicado
+ * @brief Mantém a conexão MQTT ativa, reconectando quando necessário.
  */
-void publishPayloadToMqtt(const String& payload);
+void maintainMqttConnection();
 
 /**
- * @brief Publica os dados do ângulo no tópico MQTT
- *
- * @param angulo Valor do ângulo a ser publicado, formatado como string com 2
- * casas decimais
+ * @brief Indica se o cliente MQTT está conectado e pronto para publicar.
  */
-void publicarDados(float angulo);
+bool isMqttReady();
 
 /**
  * @brief Publica uma mensagem em um tópico MQTT específico
@@ -78,6 +72,6 @@ void publicarDados(float angulo);
  * @param topic Tópico onde a mensagem será publicada
  * @param payload Payload da mensagem a ser publicada
  */
-void publishMessageToMqtt(String topic, String payload);
+void publishMessageToMqtt(const char* topic, const char* payload);
 
 #endif  // MQTT_COMMUNICATION_H
