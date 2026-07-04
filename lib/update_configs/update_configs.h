@@ -3,15 +3,12 @@
 
 #include "configs_manager.h"
 #include "global_variables.h"
-#include "http_communication.h"
 
 /**
- * @brief Tarefa para atualizar as configurações do dispositivo
+ * @brief Aplica atualizações de configuração a partir de um objeto JSON
  *
- * @param pvParameters Parâmetros da tarefa (não utilizados)
+ * @param root Objeto JSON com angleConfigurations e wifiConfigurations
  */
-void taskUpdateConfigs(void* pvParameters);
-
-void updateConfigs();
+bool applyConfigUpdateJson(cJSON* root);
 
 #endif  // UPDATE_CONFIGS_H

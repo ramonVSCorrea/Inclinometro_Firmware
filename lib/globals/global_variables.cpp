@@ -22,17 +22,13 @@ bool commandLower = false;
 
 // WiFi variables
 bool isWiFiConnected = false;
-String wifiSSID = "LIVE TIM_0820_2G";
-String wifiPassword = "a3ehn6rep6";
+char wifiSSID[WIFI_SSID_MAX_LENGTH] = "LIVE TIM_0820_2G";
+char wifiPassword[WIFI_PASSWORD_MAX_LENGTH] = "a3ehn6rep6";
 bool isWiFiConfigChanged = false;
-
-// HTTP variables
-bool isHttpRequest = false;
+bool isMqttConnected = false;
 
 // GPS variables
 double latitude = 0.0;
 double longitude = 0.0;
 
-String id = "AAAA";
-
-SemaphoreHandle_t httpMutex = NULL;
+char id[SENSOR_ID_MAX_LENGTH] = "AAAA";

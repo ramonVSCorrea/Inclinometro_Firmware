@@ -1,7 +1,12 @@
 #include "signaling.h"
+#include "stack_debug.h"
 
 bool isEventBlocked =
     false;  // Indica se um evento de bloqueio já foi registrado
+
+namespace {
+char eventPayload[EVENT_MESSAGE_BUFFER_SIZE];
+}
 
 void checkCurrentCondition() {
   // Verifica condição de bloqueio
@@ -11,11 +16,10 @@ void checkCurrentCondition() {
        (frontalAngle * (-1) >= blockFrontalAngle))) {
     isBlocked = true;
     if (!isEventBlocked) {
-      while (isHttpRequest) {
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+      if (isMqttReady() &&
+          buildEventMessage(EVT_BLOCK, eventPayload, sizeof(eventPayload))) {
+        publishMessageToMqtt(MQTT_EVENT_TOPIC, eventPayload);
       }
-      sendMessageToServer(
-          buildEventPayload(EVENT_BLOCK, EVENT_BLOCK_DESCRIPTION));
       isEventBlocked = true;
     }
   } else {
@@ -54,11 +58,15 @@ void signalAlert() {
 }
 
 void taskSignals(void* pvParameters) {
+  unsigned long stackLogTimer = 0;
+
   pinMode(GREEN_LED_PIN, OUTPUT);
   pinMode(RED_LED_PIN, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
 
   while (1) {
+    logTaskStackHighWaterMark("Tarefa_Sinalizacoes", &stackLogTimer);
+
     checkCurrentCondition();
 
     if (isBlocked) {
